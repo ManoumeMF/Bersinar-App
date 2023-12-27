@@ -1,4 +1,4 @@
-package corporate
+package offtaker
 
 import (
 	"BSB/BSB/config"
@@ -7,25 +7,33 @@ import (
 	"net/http"
 )
 
-type Corporate struct {
-	CorporateId    int    `gorm:"column:corporateId;primary_key:auto_increament" json:"corporateId"`
-	CorporateCode  string `gorm:"column:corporateCode" json:"corporateCode"`
-	TaxId          int    `gorm:"column:taxId" json:"taxId"`
-	CorporateName  string `gorm:"column:corporateName" json:"corporateName"`
-	Address        string `gorm:"column:address" json:"address"`
-	PostalCode     string `gorm:"column:postalCode" json:"postalCode"`
-	PhoneNumber    int    `gorm:"column:phoneNumber" json:"phoneNumber"`
-	WhatsAppNumber int    `gorm:"column:whatsAppNumber" json:"whatsAppNumber"`
-	FaxNumber      int    `gorm:"column:faxNumber" json:"faxNumber"`
+type Customer struct {
+	CustomerId     int    `gorm:"column:customerId;primary_key:auto_increament" json:"customerId"`
+	PartnerTypeId  int    `gorm:"column:partnerTypeId" json:"partnerTypeId"`
+	PartnerType    string `gorm:"column:partnerType" json:"partnerType"`
+	CustomerCode   string `gorm:"column:customerCode" json:"customerCode"`
+	CustomerName   string `gorm:"column:customerName" json:"customerName"`
 	Email          string `gorm:"column:email" json:"email"`
-	Logo           string `gorm:"column:logo" json:"logo"`
-	CurrencyId     int    `gorm:"column:currencyId" json:"currencyId"`
-	SubdistrictId  int    `gorm:"column:subdistrictId" json:"subdistrictId"`
-	Subdis_name    string `gorm:"column:subdis_name" json:"subdis_name"`
-	Dis_name       string `gorm:"column:dis_name" json:"dis_name"`
-	City_name      string `gorm:"column:city_name" json:"city_name"`
-	Prov_name      string `gorm:"column:prov_name" json:"prov_name"`
+	TeleponNumber  string `gorm:"column:teleponNumber" json:"teleponNumber"`
+	FaxNumber      string `gorm:"column:faxNumber" json:"faxNumber"`
+	MobileNumber   string `gorm:"column:mobileNumber" json:"mobileNumber"`
+	WhatsappNumber string `gorm:"column:whatsappNumber" json:"whatsappNumber"`
+	BusinessUnitId int    `gorm:"column:businessUnitId" json:"businessUnitId"`
+	ContactPerson  string `gorm:"column:contactPerson" json:"contactPerson"`
+	CustomerPhoto  string `gorm:"column:customerPhoto" json:"customerPhoto"`
 	IsDeleted      int    `gorm:"column:isDeleted" json:"isDeleted"`
+}
+
+type CustomerByBu struct {
+	CustomerId      int    `gorm:"column:customerId;primary_key:auto_increament" json:"customerId"`
+	CustomerCode    string `gorm:"column:customerCode" json:"customerCode"`
+	CustomerName    string `gorm:"column:customerName" json:"customerName"`
+	PartnerType     string `gorm:"column:partnerType" json:"partnerType"`
+	CustomerAddress string `gorm:"column:customerAddress" json:"customerAddress"`
+	TeleponNumber   string `gorm:"column:teleponNumber" json:"teleponNumber"`
+	WhatsappNumber  string `gorm:"column:whatsappNumber" json:"whatsappNumber"`
+	RT              string `gorm:"column:RT" json:"RT"`
+	RW              string `gorm:"column:RW" json:"RW"`
 }
 
 func ViewAll(w http.ResponseWriter, r *http.Request) {
@@ -39,8 +47,8 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var corporates []Corporate
-	result := DB.Raw("CALL viewAll_corporate()").Scan(&corporates)
+	var customer []CustomerByBu
+	result := DB.Raw("CALL viewAll_customer").Take(&customer)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Get Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -48,12 +56,13 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", corporates)
+	res := response.BuildResponse(true, "OK!", customer)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
 	return
 }
+
 func ViewById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
 	if r.Method != http.MethodGet {
@@ -66,8 +75,8 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var corporate Corporate
-	check := DB.Table("corporate").Where("corporateId =?", id).Take(&corporate)
+	var customer, temp Customer
+	check := DB.Table("customer").Where("customerId =?", id).Take(&temp)
 	if check.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -75,7 +84,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	result := DB.Raw("CALL view_corporate_byId(?)", id).Scan(&corporate)
+	result := DB.Raw("CALL view_customer_byId(?)", id).Take(&customer)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -83,7 +92,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", corporate)
+	res := response.BuildResponse(true, "OK!", customer)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
@@ -98,8 +107,8 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	var corporate Corporate
-	err := json.NewDecoder(r.Body).Decode(&corporate)
+	var customer Customer
+	err := json.NewDecoder(r.Body).Decode(&customer)
 	if err != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", err.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -109,8 +118,8 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	marshalled, _ := json.Marshal(corporate)
-	result := DB.Exec("CALL insert_corporate(?)", string(marshalled))
+	marshalled, _ := json.Marshal(customer)
+	result := DB.Exec("CALL insert_customer(?)", string(marshalled))
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Insert Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -118,7 +127,7 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", corporate)
+	res := response.BuildResponse(true, "OK!", customer)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
@@ -135,8 +144,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var corporate, temp Corporate
-	err := json.NewDecoder(r.Body).Decode(&corporate)
+	var customer, temp Customer
+	err := json.NewDecoder(r.Body).Decode(&customer)
 	if err != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", err.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -144,7 +153,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	check := DB.Table("corporate").Where("corporateId =?", corporate.CorporateId).Take(&temp)
+	check := DB.Table("customer").Where("customerId =?", customer.CustomerId).Take(&temp)
 	if check.Error != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", "No Data's Found In Database", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -152,8 +161,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	marshalled, _ := json.Marshal(corporate)
-	result := DB.Exec("CALL update_corporate(?)", string(marshalled))
+	marshalled, _ := json.Marshal(customer)
+	result := DB.Exec("CALL update_customer(?)", string(marshalled))
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Update Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -161,7 +170,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", corporate)
+	res := response.BuildResponse(true, "OK!", customer)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
@@ -179,16 +188,16 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var temp Corporate
-	check := DB.Table("corporate").Where("corporateId =?", id).Take(&temp)
-	if check.Error != nil || temp.IsDeleted != 0 {
+	var temp Customer
+	check := DB.Table("customer").Where("customerId =?", id).Take(&temp)
+	if check.Error != nil && temp.IsDeleted != 1 {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
 		response, _ := json.Marshal(res)
 		w.Write(response)
 		return
 	}
-	result := DB.Exec("CALL delete_corporate(?)", id)
+	result := DB.Exec("CALL delete_customer(?)", id)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Insert Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -198,6 +207,73 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	temp.IsDeleted = 1
 	res := response.BuildResponse(true, "OK!", temp)
+	w.WriteHeader(http.StatusOK)
+	response, _ := json.Marshal(res)
+	w.Write(response)
+	return
+}
+
+func ViewCombo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if r.Method != http.MethodGet {
+		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(res)
+		w.Write(response)
+		return
+	}
+	DB := config.SetupDBConnection()
+	defer config.CloseDBConnection(DB)
+	type tempOfftaker struct {
+		PartnerTypeId int    `gorm:"column:partnerTypeId;primary_key:auto_increament" json:"partnerTypeId"`
+		PartnerType   string `gorm:"column:partnerType" json:"partnerType"`
+	}
+	var offtaker []tempOfftaker
+	result := DB.Raw("CALL cbo_partnerType_Offtaker").Take(&offtaker)
+	if result.Error != nil {
+		res := response.BuildErrorResponse("Cannot Get Data", result.Error.Error(), response.EmptyObj{})
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(res)
+		w.Write(response)
+		return
+	}
+	res := response.BuildResponse(true, "OK!", offtaker)
+	w.WriteHeader(http.StatusOK)
+	response, _ := json.Marshal(res)
+	w.Write(response)
+	return
+}
+
+func ViewAllByBuId(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
+	if r.Method != http.MethodGet {
+		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(res)
+		w.Write(response)
+		return
+	}
+	id := r.URL.Query().Get("id")
+	DB := config.SetupDBConnection()
+	defer config.CloseDBConnection(DB)
+	var customer, temp []CustomerByBu
+	check := DB.Table("customer").Where("businessUnitId =?", id).Take(&temp)
+	if check.Error != nil {
+		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(res)
+		w.Write(response)
+		return
+	}
+	result := DB.Raw("CALL viewAll_customer_byBUId(?)", id).Scan(&customer)
+	if result.Error != nil {
+		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(res)
+		w.Write(response)
+		return
+	}
+	res := response.BuildResponse(true, "OK!", customer)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)

@@ -8,14 +8,14 @@ import (
 )
 
 type Occupation struct {
-	OccupationID   int    `gorm:"column:occupationId;primary_key:auto_increament" json:"occupationId"`
+	OccupationID   int    `gorm:"column:occupationId;primary_key:auto_increment" json:"occupationId"`
 	OccupationName string `gorm:"column:occupationName" json:"occupationName"`
 	Description    string `gorm:"column:description" json:"description"`
 	IsDeleted      int    `gorm:"column:isDeleted" json:"isDeleted"`
 }
 
 func ViewAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if r.Method != http.MethodGet {
 		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -26,7 +26,7 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
 	var occupations []Occupation
-	result := DB.Raw("CALL viewAll_occupation").Scan(&occupations)
+	result := DB.Raw("CALL viewAll_occupation").Take(&occupations)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Get Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -52,7 +52,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var occupation,temp Occupation
+	var occupation, temp Occupation
 	check := DB.Table("occupation").Where("occupationId =? ", id).Take(&temp)
 	if check.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
@@ -75,7 +75,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 	return
 }
-func Insert(w http.ResponseWriter, r *http.Request)   {
+func Insert(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
 	if r.Method != http.MethodPost {
 		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
@@ -85,7 +85,7 @@ func Insert(w http.ResponseWriter, r *http.Request)   {
 		return
 	}
 	var occupation Occupation
-    err := json.NewDecoder(r.Body).Decode(&occupation)
+	err := json.NewDecoder(r.Body).Decode(&occupation)
 	if err != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", err.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -110,7 +110,7 @@ func Insert(w http.ResponseWriter, r *http.Request)   {
 	w.Write(response)
 	return
 }
-func Update(w http.ResponseWriter, r *http.Request)   {
+func Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
 	if r.Method != http.MethodPut {
 		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
@@ -121,7 +121,7 @@ func Update(w http.ResponseWriter, r *http.Request)   {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var occupation,temp Occupation
+	var occupation, temp Occupation
 	err := json.NewDecoder(r.Body).Decode(&occupation)
 	if err != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", err.Error(), response.EmptyObj{})
@@ -153,7 +153,7 @@ func Update(w http.ResponseWriter, r *http.Request)   {
 	w.Write(response)
 	return
 }
-func Delete(w http.ResponseWriter, r *http.Request)   {
+func Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodDelete {
 		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})

@@ -8,21 +8,33 @@ import (
 )
 
 type Item struct {
-	ItemId         int    `gorm:"column:itemId" json:"itemId"`
-	BusinessUnitId int    `gorm:"column:businessUnitId" json:"businessUnitId"`
-	ItemCode       string `gorm:"column:itemCode" json:"itemCode"`
-	ItemName       string `gorm:"column:itemName" json:"itemName"`
-	ItemCategoryId int    `gorm:"column:itemCategoryId" json:"itemCategoryId"`
-	ItemUoMId      int    `gorm:"column:itemUoMId" json:"itemUoMId"`
-	Specification  string `gorm:"column:specification" json:"specification"`
-	Barcode        string `gorm:"column:barcode" json:"barcode"`
-	Description    string `gorm:"column:description" json:"description"`
-	Gambar         string `gorm:"column:gambar" json:"gambar"`
-	IsDeleted      int    `gorm:"column:isDeleted" json:"isDeleted"`
+	ItemId           int    `gorm:"column:itemId" json:"itemId"`
+	BusinessUnitId   int    `gorm:"column:businessUnitId" json:"businessUnitId"`
+	BusinessUnitName string `gorm:"column:businessUnitName" json:"businessUnitName"`
+	ItemCode         string `gorm:"column:itemCode" json:"itemCode"`
+	ItemName         string `gorm:"column:itemName" json:"itemName"`
+	ItemCategoryId   int    `gorm:"column:itemCategoryId" json:"itemCategoryId"`
+	ItemCategoryName string `gorm:"column:itemCategoryName" json:"itemCategoryName"`
+	ItemUoMId        int    `gorm:"column:itemUoMId" json:"itemUoMId"`
+	UomItem          string `gorm:"column:uomItem" json:"uomItem"`
+	Specification    string `gorm:"column:specification" json:"specification"`
+	Barcode          string `gorm:"column:barcode" json:"barcode"`
+	Description      string `gorm:"column:description" json:"description"`
+	Gambar           string `gorm:"column:gambar" json:"gambar"`
+	IsDeleted        int    `gorm:"column:isDeleted" json:"isDeleted"`
+}
+
+type ItemView struct {
+	ItemId           int    `gorm:"column:itemId" json:"itemId"`
+	ItemCode         string `gorm:"column:itemCode" json:"itemCode"`
+	ItemName         string `gorm:"column:itemName" json:"itemName"`
+	ItemCategoryname string `gorm:"column:itemCategoryName" json:"itemCategoryName"`
+	UoMItem          string `gorm:"column:uomItem" json:"uomItem"`
+	Description      string `gorm:"column:description" json:"description"`
 }
 
 func ViewAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if r.Method != http.MethodGet {
 		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -32,8 +44,8 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var items []Item
-	result := DB.Raw("CALL viewAll_item()").Scan(&items)
+	var itemViews []ItemView
+	result := DB.Raw("CALL viewAll_item()").Scan(&itemViews)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Get Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -41,7 +53,7 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", items)
+	res := response.BuildResponse(true, "OK!", itemViews)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
@@ -68,7 +80,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	result := DB.Raw("CALL view_item_byId", id).Scan(&item)
+	result := DB.Raw("CALL view_item_byId(?)", id).Take(&item)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)

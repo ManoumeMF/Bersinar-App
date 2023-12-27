@@ -2,27 +2,43 @@ package main
 
 import (
 	"BSB/BSB/accountcategory"
-	"BSB/BSB/bisnisunittype"
+	"BSB/BSB/assignmentletter"
 	"BSB/BSB/bloodtype"
+	"BSB/BSB/businessunit"
+	"BSB/BSB/businessunittype"
 	"BSB/BSB/config"
 	"BSB/BSB/corporate"
+	"BSB/BSB/department"
+	"BSB/BSB/employeepersonal"
+	"BSB/BSB/extras"
 	"BSB/BSB/handler"
 	"BSB/BSB/identitytype"
 	"BSB/BSB/item"
 	"BSB/BSB/itemcategory"
+	"BSB/BSB/itemstock"
+	"BSB/BSB/itemstockadjustment"
 	"BSB/BSB/itemtype"
 	"BSB/BSB/itemuom"
 	"BSB/BSB/middleware"
 	"BSB/BSB/occupation"
+	"BSB/BSB/offtaker"
 	"BSB/BSB/partnertype"
 	"BSB/BSB/paymenttype"
+	"BSB/BSB/persontype"
 	"BSB/BSB/position"
+	"BSB/BSB/purchaseorder"
+	"BSB/BSB/religion"
 	"BSB/BSB/repository"
 	"BSB/BSB/service"
+	"BSB/BSB/status"
 	"BSB/BSB/statustype"
+	"BSB/BSB/supplier"
+	"BSB/BSB/unit"
 	"BSB/BSB/uomtype"
+	"BSB/BSB/vehicletype"
+	"BSB/BSB/weighing"
 	"fmt"
-	"net/http"
+	"net/http" //gin + gorilla mux
 
 	"gorm.io/gorm"
 )
@@ -64,11 +80,11 @@ func main() {
 	http.HandleFunc("/API/accountCategory/deleteById", accountcategory.Delete)
 
 	//Bisnis Unit Type
-	http.HandleFunc("/API/bisnisUnitType/viewAll", bisnisunittype.ViewAll)
-	http.HandleFunc("/API/bisnisUnitType/viewById", bisnisunittype.ViewById)
-	http.HandleFunc("/API/bisnisUnitType/insert", bisnisunittype.Insert)
-	http.HandleFunc("/API/bisnisUnitType/update", bisnisunittype.Update)
-	http.HandleFunc("/API/bisnisUnitType/deleteById", bisnisunittype.Delete)
+	http.HandleFunc("/API/businessUnitType/viewAll", businessunittype.ViewAll)
+	http.HandleFunc("/API/businessUnitType/viewById", businessunittype.ViewById)
+	http.HandleFunc("/API/businessUnitType/insert", businessunittype.Insert)
+	http.HandleFunc("/API/businessUnitType/update", businessunittype.Update)
+	http.HandleFunc("/API/businessUnitType/deleteById", businessunittype.Delete)
 
 	//Position
 	http.HandleFunc("/API/position/viewAll", position.ViewAll)
@@ -140,20 +156,137 @@ func main() {
 	http.HandleFunc("/API/item/update", item.Update)
 	http.HandleFunc("/API/item/deleteById", item.Delete)
 
-	// //Business Unit
-	// http.HandleFunc("/API/businessUnit/viewAll", businessunit.ViewAll)
-	// http.HandleFunc("/API/businessUnit/viewById", businessunit.ViewById)
-	// http.HandleFunc("/API/businessUnit/insert", businessunit.Insert)
-	// http.HandleFunc("/API/businessUnit/update", businessunit.Update)
-	// http.HandleFunc("/API/businessUnit/deleteById", businessunit.Delete)
-
 	//Corporate
 	http.HandleFunc("/API/corporate/viewAll", corporate.ViewAll)
-	http.HandleFunc("/API/corporate/viewById", corporate.ViewAll)
+	http.HandleFunc("/API/corporate/viewById", corporate.ViewById)
 	http.HandleFunc("/API/corporate/insert", corporate.Insert)
 	http.HandleFunc("/API/corporate/update", corporate.Update)
 	http.HandleFunc("/API/corporate/deleteById", corporate.Delete)
 
+	//Religion
+	http.HandleFunc("/API/religion/viewAll", religion.ViewAll)
+	http.HandleFunc("/API/religion/viewById", religion.ViewById)
+	http.HandleFunc("/API/religion/insert", religion.Insert)
+	http.HandleFunc("/API/religion/update", religion.Update)
+	http.HandleFunc("/API/religion/deleteById", religion.Delete)
+
+	//Business Unit
+	http.HandleFunc("/API/businessUnit/viewAll", businessunit.ViewAll)
+	http.HandleFunc("/API/businessUnit/viewById", businessunit.ViewById)
+	http.HandleFunc("/API/businessUnit/insert", businessunit.Insert)
+	http.HandleFunc("/API/businessUnit/update", businessunit.Update)
+	http.HandleFunc("/API/businessUnit/deleteById", businessunit.Delete)
+
+	//Department
+	http.HandleFunc("/API/department/viewAll", department.ViewAll)
+	http.HandleFunc("/API/department/viewById", department.ViewById)
+	http.HandleFunc("/API/department/insert", department.Insert)
+	http.HandleFunc("/API/department/update", department.Update)
+	http.HandleFunc("/API/department/deleteById", department.Delete)
+	http.HandleFunc("/API/department/viewCombo", department.ViewCombo)
+
+	//Person Type
+	http.HandleFunc("/API/personType/viewAll", persontype.ViewAll)
+	http.HandleFunc("/API/personType/viewById", persontype.ViewById)
+	http.HandleFunc("/API/personType/insert", persontype.Insert)
+	http.HandleFunc("/API/personType/update", persontype.Update)
+	http.HandleFunc("/API/personType/deleteById", persontype.Delete)
+
+	//Supplier
+	http.HandleFunc("/API/supplier/viewAll", supplier.ViewAll)
+	http.HandleFunc("/API/supplier/viewById", supplier.ViewById)
+	http.HandleFunc("/API/supplier/insert", supplier.Insert)
+	http.HandleFunc("/API/supplier/update", supplier.Update)
+	http.HandleFunc("/API/supplier/deleteById", supplier.Delete)
+	http.HandleFunc("/API/supplier/viewByBuId", supplier.ViewAllByBuId)
+	http.HandleFunc("/API/supplier/viewCombo", supplier.ViewCombo)
+
+	//Offtaker
+	http.HandleFunc("/API/offtaker/viewAll", offtaker.ViewAll)
+	http.HandleFunc("/API/offtaker/viewById", offtaker.ViewById)
+	http.HandleFunc("/API/offtaker/insert", offtaker.Insert)
+	http.HandleFunc("/API/offtaker/update", offtaker.Update)
+	http.HandleFunc("/API/offtaker/deleteById", offtaker.Delete)
+	http.HandleFunc("/API/offtaker/viewCombo", offtaker.ViewCombo)
+	http.HandleFunc("/API/offtaker/viewByBuId", offtaker.ViewAllByBuId)
+
+	//EmployeePersonal
+	http.HandleFunc("/API/employeePersonal/viewAll", employeepersonal.ViewAll)
+	http.HandleFunc("/API/employeePersonal/viewById", employeepersonal.ViewById)
+	http.HandleFunc("/API/employeePersonal/insert", employeepersonal.Insert)
+	http.HandleFunc("/API/employeePersonal/update", employeepersonal.Update)
+	http.HandleFunc("/API/employeePersonal/deleteById", employeepersonal.Delete)
+
+	//Unit
+	http.HandleFunc("/API/unit/viewAll", unit.ViewAll)
+	http.HandleFunc("/API/unit/viewById", unit.ViewById)
+	http.HandleFunc("/API/unit/insert", unit.Insert)
+	http.HandleFunc("/API/unit/update", unit.Update)
+	http.HandleFunc("/API/unit/deleteById", unit.Delete)
+	http.HandleFunc("/API/unit/viewCombo", unit.ViewCombo)
+
+	//Assignment Letter
+	http.HandleFunc("/API/assignmentLetter/viewAll", assignmentletter.ViewAll)
+	http.HandleFunc("/API/assignmentLetter/viewById", assignmentletter.ViewById)
+	http.HandleFunc("/API/assignmentLetter/insert", assignmentletter.Insert)
+	http.HandleFunc("/API/assignmentLetter/update", assignmentletter.Update)
+	http.HandleFunc("/API/assignmentLetter/deleteById", assignmentletter.Delete)
+	http.HandleFunc("/API/assignmentLetter/viewByBuId", assignmentletter.ViewByBuId)
+
+	//VehicleType
+	http.HandleFunc("/API/vehicleType/viewAll", vehicletype.ViewAll)
+	http.HandleFunc("/API/vehicleType/viewById", vehicletype.ViewById)
+	http.HandleFunc("/API/vehicleType/insert", vehicletype.Insert)
+	http.HandleFunc("/API/vehicleType/update", vehicletype.Update)
+	http.HandleFunc("/API/vehicleType/deleteById", vehicletype.Delete)
+
+	//Status
+	http.HandleFunc("/API/status/viewAll", status.ViewAll)
+	http.HandleFunc("/API/status/viewById", status.ViewById)
+	http.HandleFunc("/API/status/insert", status.Insert)
+	http.HandleFunc("/API/status/update", status.Update)
+	http.HandleFunc("/API/status/deleteById", status.Delete)
+	http.HandleFunc("/API/status/viewCombo", status.ViewCombo)
+
+	//Weighing
+	http.HandleFunc("/API/weighing/viewAll", weighing.ViewAll)
+	http.HandleFunc("/API/weighing/viewByBuId", weighing.ViewByBuId)
+	http.HandleFunc("/API/weighing/viewById", weighing.ViewById)
+	http.HandleFunc("/API/weighing/insert", weighing.Insert)
+	http.HandleFunc("/API/weighing/update", weighing.Update)
+	// http.HandleFunc("/API/weighing/deleteById", weighing.Delete)
+
+	//PurchaseOrder
+	http.HandleFunc("/API/purchaseOrder/viewAll", purchaseorder.ViewAll)
+	http.HandleFunc("/API/purchaseOrder/viewByBuId", purchaseorder.ViewByBuId)
+	http.HandleFunc("/API/purchaseOrder/insert", purchaseorder.Insert)
+	http.HandleFunc("/API/purchaseOrder/update", purchaseorder.Update)
+
+	//Province
+	http.HandleFunc("/API/provinces/viewAll", extras.ViewAllProvince)
+	//Cities
+	http.HandleFunc("/API/cities/viewAll", extras.ViewAllCities)
+	http.HandleFunc("/API/cities/viewByProvinceId", extras.ViewCitiesByProvince)
+
+	//Districts
+	http.HandleFunc("/API/districts/viewAll", extras.ViewAllDistricts)
+	http.HandleFunc("/API/districts/viewByCityId", extras.ViewDistrictsByCity)
+
+	//Subdistricts
+	http.HandleFunc("/API/subdistricts/viewAll", extras.ViewAllSubDistricts)
+	http.HandleFunc("/API/subdistricts/viewByDistrictId", extras.ViewSubDistrictsByDistrict)
+
+	//ItemStockAdjustments
+	http.HandleFunc("/API/itemStockAdjustments/viewAll", itemstockadjustment.ViewAllISA)
+	http.HandleFunc("/API/itemStockAdjustments/viewByBuId", itemstockadjustment.ViewISAByBuId)
+	http.HandleFunc("/API/itemStockAdjustments/insert", itemstockadjustment.InsertISA)
+
+	//ItemStock
+	http.HandleFunc("/API/itemStock/viewAll", itemstock.ViewAll)
+	http.HandleFunc("/API/itemStock/viewByBuId", itemstock.ViewByBuId)
+
+	//Currency
+	http.HandleFunc("/API/currency/viewAll", extras.ViewAllCurrency)
 	err := http.ListenAndServe(":8080", nil)
 	fmt.Println("Running Server on port :8080")
 	if err != nil {

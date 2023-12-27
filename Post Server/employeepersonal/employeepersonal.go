@@ -1,4 +1,4 @@
-package partnertype
+package employeepersonal
 
 import (
 	"BSB/BSB/config"
@@ -7,13 +7,22 @@ import (
 	"net/http"
 )
 
-type PartnerType struct {
-	PartnerTypeId int    `gorm:"column:partnerTypeId;primary_key:auto_increment" json:"partnerTypeId"`
-	PartnerType   string `gorm:"column:partnerType" json:"partnerType"`
-	ParentId      int    `gorm:"column:parentId" json:"parentId"`
-	Parent        string `gorm:"column:parent" json:"parent"`
-	Description   string `gorm:"column:description" json:"description"`
-	IsDeleted     int    `gorm:"column:isDeleted;default:0" json:"isDeleted"`
+type Employee struct {
+	EmployeeId          int    `gorm:"column:employeeId;primary_key:auto_increament" json:"employeeId"`
+	EmployeeName        string `gorm:"column:employeeName" json:"employeeName"`
+	BirthPlace          string `gorm:"column:birthPlace" json:"birthPlace"`
+	BirthDate           string `gorm:"column:birthDate" json:"birthDate"`
+	Sex                 string `gorm:"column:sex" json:"sex"`
+	ReligionId          int    `gorm:"column:religionId" json:"religionId"`
+	MariageStatusId     int    `gorm:"column:mariageStatusId" json:"mariageStatusId"`
+	NationalityStatusId int    `gorm:"column:nationalityStatusId" json:"nationalityStatusId"`
+	TeleponNumber       string `gorm:"column:teleponNumber" json:"teleponNumber"`
+	MobileNumber        string `gorm:"column:mobileNumber" json:"mobileNumber"`
+	WhatsappNumber      string `gorm:"column:whatsappNumber" json:"whatsappNumber"`
+	Email               string `gorm:"column:email" json:"email"`
+	BusinessUnitId      int    `gorm:"column:businessUnitId" json:"businessUnitId"`
+	PersonType          int    `gorm:"column:personType" json:"personType"`
+	IsDeleted           int    `gorm:"column:isDeleted" json:"isDeleted"`
 }
 
 func ViewAll(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +36,8 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var partnerType []PartnerType
-	result := DB.Raw("CALL viewAll_partnerType").Take(&partnerType)
+	var employee []Employee
+	result := DB.Raw("CALL viewAll_employeePersonal").Take(&employee)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Get Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -36,7 +45,7 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", partnerType)
+	res := response.BuildResponse(true, "OK!", employee)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
@@ -55,8 +64,8 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var partnerType, temp PartnerType
-	check := DB.Table("partnerType").Where("partnerTypeId =? ", id).Take(&temp)
+	var employee, temp Employee
+	check := DB.Table("employeePersonal").Where("employeeId =?", id).Take(&temp)
 	if check.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -64,7 +73,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	result := DB.Raw("CALL view_partnerType_byId(?)", id).Scan(&partnerType)
+	result := DB.Raw("CALL view_employeePersonal_byId(?)", id).Take(&employee)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -72,13 +81,12 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", partnerType)
+	res := response.BuildResponse(true, "OK!", employee)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
 	return
 }
-
 func Insert(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
 	if r.Method != http.MethodPost {
@@ -88,8 +96,8 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	var partnerType PartnerType
-	err := json.NewDecoder(r.Body).Decode(&partnerType)
+	var employee Employee
+	err := json.NewDecoder(r.Body).Decode(&employee)
 	if err != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", err.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -99,8 +107,8 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	marshalled, _ := json.Marshal(partnerType)
-	result := DB.Exec("CALL insert_partnerType(?)", string(marshalled))
+	marshalled, _ := json.Marshal(employee)
+	result := DB.Exec("CALL insert_employeePersonal(?)", string(marshalled))
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Insert Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -108,13 +116,12 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", partnerType)
+	res := response.BuildResponse(true, "OK!", employee)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
 	return
 }
-
 func Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
 	if r.Method != http.MethodPut {
@@ -126,8 +133,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var partnerType, temp PartnerType
-	err := json.NewDecoder(r.Body).Decode(&partnerType)
+	var employee, temp Employee
+	err := json.NewDecoder(r.Body).Decode(&employee)
 	if err != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", err.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -135,7 +142,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	check := DB.Table("partnerType").Where("partnerTypeId =?", partnerType.PartnerTypeId).Take(&temp)
+	check := DB.Table("employeePersonal").Where("employeeId =?", employee.EmployeeId).Take(&temp)
 	if check.Error != nil {
 		res := response.BuildErrorResponse("Failed to Process Request", "No Data's Found In Database", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -143,8 +150,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	marshalled, _ := json.Marshal(partnerType)
-	result := DB.Exec("CALL update_partnerType(?)", string(marshalled))
+	marshalled, _ := json.Marshal(employee)
+	result := DB.Exec("CALL update_employeePersonal(?)", string(marshalled))
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Update Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -152,13 +159,12 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	res := response.BuildResponse(true, "OK!", partnerType)
+	res := response.BuildResponse(true, "OK!", employee)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
 	w.Write(response)
 	return
 }
-
 func Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodDelete {
@@ -171,8 +177,8 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
-	var temp PartnerType
-	check := DB.Table("partnerType").Where("partnerTypeId =? ", id).Take(&temp)
+	var temp Employee
+	check := DB.Table("employeePersonal").Where("employeeId =?", id).Take(&temp)
 	if check.Error != nil && temp.IsDeleted != 1 {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -180,7 +186,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
-	result := DB.Exec("CALL delete_partnerType(?)", id)
+	result := DB.Exec("CALL delete_employeePersonal(?)", id)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Insert Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)

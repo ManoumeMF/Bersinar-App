@@ -8,14 +8,14 @@ import (
 )
 
 type IdentityType struct {
-	IdentityTypeID int    `gorm:"column:identityTypeId;primary_key:auto_increament" json:"identityTypeId"`
+	IdentityTypeID int    `gorm:"column:identityTypeId;primary_key:auto_increment" json:"identityTypeId"`
 	IdentityType   string `gorm:"column:identityType" json:"identityType"`
 	Description    string `gorm:"column:description" json:"description"`
 	IsDeleted      int    `gorm:"column:isDeleted" json:"isDeleted"`
 }
 
 func ViewAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "appliation/json; charset=UTF-8")
+	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
 		res := response.BuildErrorResponse("Wrong Method", "Wrong Method", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -26,7 +26,7 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
 	var identityType []IdentityType
-	result := DB.Raw("CALL viewAll_identityType").Scan(&identityType)
+	result := DB.Raw("CALL viewAll_identityType").Take(&identityType)
 	if result.Error != nil {
 		res := response.BuildErrorResponse("Cannot Get Data", result.Error.Error(), response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
@@ -34,6 +34,7 @@ func ViewAll(w http.ResponseWriter, r *http.Request) {
 		w.Write(response)
 		return
 	}
+
 	res := response.BuildResponse(true, "OK!", identityType)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(res)
@@ -54,7 +55,7 @@ func ViewById(w http.ResponseWriter, r *http.Request) {
 	DB := config.SetupDBConnection()
 	defer config.CloseDBConnection(DB)
 	var identityType, temp IdentityType
-	check := DB.Table("identityType").Where("identityTypeId =? ", id).Scan(&temp)
+	check := DB.Table("identityType").Where("identityTypeId =? ", id).Take(&temp)
 	if check.Error != nil {
 		res := response.BuildErrorResponse("No Data's Found", "No ID Found", response.EmptyObj{})
 		w.WriteHeader(http.StatusBadRequest)
