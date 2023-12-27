@@ -5,105 +5,110 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use PSpell\Config;
 
 class ItemCategoryController extends Controller
 {
-    public function index(): View
+    public function index()
     {
-        $itemcategories = DB::table('itemCategory')
-            ->join('itemtype', 'itemcategory.itemTypeId', '=', 'itemtype.itemTypeId')
-            ->select('itemcategory.*', 'itemtype.itemType')
-            ->get();
+        $response = Http::get(Config('app.api_url') . 'itemCategory/viewAll');
+        $itemCategory = $response->json();
+        if (isset($itemCategory['data']) && is_array($itemCategory['data']) && count($itemCategory['data']) > 0) {
+            foreach ($itemCategory['data'] as &$iC) {
+                $iC['itemTypeData'] = $this->getItemTypeData($iC['itemTypeId']);
+            }
+        }
+        return view('admin.DataMaster.itemCategory.index', compact('itemCategory'));
+    }
 
-        return view('admin.DataMaster.itemCategory.index', ['itemcategories' => $itemcategories]);
+
+    protected function getItemTypeData($itemTypeId)
+    {
+        $response = Http::get(Config('app.api_url') . 'itemType/viewById?id=' . $itemTypeId);
+        $itemTypeData = $response->json()['data'] ?? null;
+        return $itemTypeData;
     }
 
     public function create()
     {
-        $jenisBarang = DB::table('itemType')->get(); // Ambil data dari tabel "Jenis Barang"
+        $response = Http::get(Config('app.api_url') . 'itemType/viewAll');
+        $itemType = $response->json();
 
-        return view('admin.DataMaster.itemCategory.create', ['jenisBarang' => $jenisBarang]);
+        return view('admin.DataMaster.itemCategory.create', compact('itemType'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'jenis_barang' => 'required', // Pastikan jenis barang dipilih
-            'kategori_barang' => 'required',
-            'keterangan' => 'required',
+            'itemTypeId' => 'required',
+            'itemCategoryName' => 'required',
+            'description' => 'required',
         ]);
-
-        DB::table('itemCategory')->insert([
-            'itemTypeId' => $request->input('jenis_barang'), // Pastikan ini adalah ID jenis barang yang valid
-            'itemCategoryName' => $request->input('kategori_barang'),
-            'description' => $request->input('keterangan'),
+        $response = Http::post(config('app.api_url') . 'itemCategory/insert', [
+            'itemTypeId' => (int)$request->input('itemTypeId'),
+            'itemCategoryName' => $request->input('itemCategoryName'),
+            'description' => $request->input('description'),
         ]);
-
-        return redirect()->route('itemCategory.index')->with('success', 'Kategori Barang berhasil ditambahkan.');
+        if ($response->successful()) {
+            return redirect()->route('itemCategory.index')->with('success', 'Kategori Barang berhasil ditambahkan');
+        } else {
+            return redirect()->route('itemCategory.index')->with('error', 'Gagal menambahkan Kategori Barang.');
+        }
     }
 
     public function edit($id): View
     {
-        $itemcategory = DB::table('itemCategory')
-            ->join('itemtype', 'itemcategory.itemTypeId', '=', 'itemtype.itemTypeId')
-            ->select('itemcategory.*', 'itemtype.itemType')
-            ->where('itemcategory.itemCategoryId', $id)
-            ->first();
-
-        if (!$itemcategory) {
-            return redirect()->route('itemCategory.index')->with('error', 'Kategori Barang tidak ditemukan.');
-        }
-
-        $itemtypes = DB::table('itemType')->get(); // Pastikan Anda mengambil data 'itemtype' di sini.
-
-        return view('admin.DataMaster.itemCategory.edit', compact('itemcategory', 'itemtypes'));
+        $response = Http::get(Config('app.api_url') . 'itemCategory/viewById?id=' . $id);
+        $temp = $response->json();
+        $itemCategory = $temp['data'];
+        $responseTypes = Http::get(Config('app.api_url') . 'itemType/viewAll');
+        $itemTypes = $responseTypes->json();
+        return view('admin.DataMaster.itemCategory.edit', compact('itemCategory', 'itemTypes'));
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'kategori_barang' => 'required',
-            'keterangan' => 'required',
-        ]);
-
-        DB::table('itemCategory')->where('itemCategoryId', $id)->update([
-            'itemCategoryName' => $request->input('kategori_barang'),
-            'itemTypeId' => $request->input('jenis_barang'), // Pastikan ini sesuai dengan jenis barang yang dipilih
-            'description' => $request->input('keterangan'),
-        ]);
-
-        return redirect()->route('itemCategory.index')->with('success', 'Kategori Barang berhasil diupdate.');
+        try {
+            $response = Http::put(config('app.api_url') . 'itemCategory/update', [
+                'itemCategoryId' => (int)$id,
+                'itemTypeId' => (int)$request->input('itemTypeId'),
+                'itemCategoryName' => $request->input('itemCategoryName'),
+                'description' => $request->input('description'),
+            ]);
+            if ($response->successful()) {
+                return redirect()->route('itemCategory.index')->with('success', 'Kategori Barang berhasil diupdate.');
+            } else {
+                return back()->withErrors('Gagal mengupdate Satuan Barang')->withInput();
+            }
+        } catch (\Exception $e) {
+            return back()->withErrors('Terjadi kesalahan saat memperbarui Kategori Barang.')->withInput();
+        }
     }
 
     public function show($id): View
     {
-        $itemcategory = DB::table('itemCategory')
-            ->join('itemtype', 'itemcategory.itemTypeId', '=', 'itemtype.itemTypeId')
-            ->select('itemcategory.*', 'itemtype.itemType')
-            ->where('itemcategory.itemCategoryId', $id)
-            ->first();
-
-        if (!$itemcategory) {
+        $response = Http::get(Config('app.api_url') . 'itemCategory/viewById?id=' . $id);
+        if ($response->successful()) {
+            $itemCategory = $response->json()['data'];
+            $response2 = Http::get(Config('app.api_url') . 'itemType/viewById?id=' . $itemCategory['itemTypeId']);
+            $itemCategory['itemTypeData'] = $response2->json()['data'];
+            return view('admin.DataMaster.itemCategory.show', compact('itemCategory'));
+            // return dd($itemCategory);
+        } else {
             return redirect()->route('itemCategory.index')->with('error', 'Kategori Barang tidak ditemukan.');
         }
-
-        return view('admin.DataMaster.itemCategory.show', compact('itemcategory'));
     }
 
     public function hapus($id)
     {
-        $itemcategory = DB::table('itemCategory')->where('itemCategoryId', $id)->first();
-
-        if (!$itemcategory) {
-            return redirect()->route('itemCategory.index')->with('error', 'Kategori Barang tidak ditemukan.');
-        }
-        $deleted = DB::table('itemCategory')->where('itemCategoryId', $id)->delete();
-
-        if ($deleted) {
-            return redirect()->route('itemCategory.index')->with('success', 'Kategori Barang berhasil dihapus.');
+        $response = Http::delete(Config('app.api_url') . 'itemCategory/deleteById?id=' . $id);
+        if ($response->successful()) {
+            return redirect()->route('itemCategory.index')->with('success', 'Kategori Barang berhasil dihapus');
         } else {
-            return redirect()->route('itemCategory.index')->with('error', 'Gagal menghapus Kategori Barang.');
+            return redirect()->route('itemCategory.index')->with('error', 'Gagal menghapus kategori barang');
         }
     }
 }

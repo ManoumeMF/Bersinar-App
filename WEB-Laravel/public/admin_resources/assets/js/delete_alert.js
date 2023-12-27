@@ -1,4 +1,4 @@
-function confirmDelete(positionId) {
+function ajaxDelete(url, csrfToken) {
     const swalInit = swal.mixin({
         buttonsStyling: false,
         customClass: {
@@ -18,20 +18,30 @@ function confirmDelete(positionId) {
         })
         .then((result) => {
             if (result.isConfirmed) {
-                const deleteForm = document.getElementById(
-                    "delete-form-" + positionId
-                );
-                if (deleteForm) {
-                    deleteForm.submit();
-                    swalInit.fire({
-                        title: "Hapus Berhasil!",
-                        text: "Data sudah dihapus!",
-                        icon: "success",
-                        showConfirmButton: false,
-                    });
-                } else {
-                    Swal.fire("Error!", "Delete form not found.", "error");
-                }
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    headers: {
+                        "X-CSRF-TOKEN": csrfToken,
+                    },
+                    success: function (data) {
+                        swalInit.fire({
+                            title: "Hapus Berhasil!",
+                            text: "Data sudah dihapus!",
+                            icon: "success",
+                            showConfirmButton: false,
+                        });
+                        location.reload();
+                    },
+                    error: function (data) {
+                        Swal.fire(
+                            "Error!",
+                            "Terjadi kesalahan saat menghapus data.",
+                            "error"
+                        );
+                    },
+                });
             }
         });
 }
+

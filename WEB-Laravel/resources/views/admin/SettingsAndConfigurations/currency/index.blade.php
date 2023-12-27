@@ -1,15 +1,6 @@
 @extends('layouts.admin.template')
 
 @section('content')
-
-<style>
-	.Filter {
-		padding-top: 10px;
-		/* margin-top: 20px */
-		margin-right: 10px;
-	}
-</style>
-
 <script>
 	const DatatableBasic = function() {
 

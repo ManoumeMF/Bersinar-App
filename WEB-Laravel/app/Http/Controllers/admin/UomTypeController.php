@@ -43,7 +43,10 @@ class UomTypeController extends Controller
     {
         $response = Http::get(Config('app.api_url') . 'uomType/viewById?id=' . $id);
         $temp = $response->json();
-        $uomTypeData = $temp['data'];
+        $uomTypeData = $temp['data']['0'];
+        if (!$uomTypeData) {
+            return redirect()->route('uomType.index')->with('error', 'Golongan Darah tidak ditemukan.');
+        }
         return view('admin.DataMaster.uomType.update', compact('uomTypeData'));
     }
 
@@ -78,12 +81,11 @@ class UomTypeController extends Controller
         //     return redirect()->route('uomType.index')->with('error', 'Jenis Satuan Barang gagal dihapus');
         // }
     }
-
     public function show($id)
     {
         $response = Http::get(Config('app.api_url') . 'uomType/viewById?id=' . $id);
         if ($response->successful()) {
-            $uomType = $response->json()['data'];
+            $uomType = $response->json()['data'][0];
             return view('admin.DataMaster.uomType.detail', compact('uomType'));
         } else {
             return redirect()->route('uomType.index')->with('error', 'Jenis Satuan Barang tidak ditemukan.');

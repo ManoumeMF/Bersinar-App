@@ -250,38 +250,42 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($itemType['data'] as $itemtype)
-                    <tr>
-                        <td>{{ $itemtype['itemType'] }}</td>
-                        <td>{{ $itemtype['description'] }}</td>
-                        <td class="text-center">
-                            <div class="d-inline-flex">
-                                <div class="dropdown">
-                                    <a href="#" class="text-body" data-bs-toggle="dropdown">
-                                        <i class="ph-list"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#" class="dropdown-item text-info" data-bs-toggle="modal"
-                                            data-bs-target="#modal_detail_{{ $itemtype['itemTypeId'] }}">
-                                            <i class="ph-list me-2"></i>
-                                            Detail
+                @if (isset($itemType['data']) && is_array($itemType['data']) && count($itemType['data']) > 0)
+                    @foreach ($itemType['data'] as $itemtype)
+                        <tr>
+                            <td>{{ $itemtype['itemType'] }}</td>
+                            <td>{{ $itemtype['description'] }}</td>
+                            <td class="text-center">
+                                <div class="d-inline-flex">
+                                    <div class="dropdown">
+                                        <a href="#" class="text-body" data-bs-toggle="dropdown">
+                                            <i class="ph-list"></i>
                                         </a>
-                                        <a href="#" class="dropdown-item text-secondary edit-blood-type"
-                                            data-bs-toggle="modal" data-bs-target="#modal_edit_{{ $itemtype['itemTypeId'] }}"
-                                            data-item-type-id="{{ $itemtype['itemTypeId'] }}">
-                                            <i class="ph-pencil me-2"></i>
-                                            Edit
-                                        </a>
-                                        <a href="#" onclick="confirmDeleteItemType({{ $itemtype['itemTypeId'] }})"
-                                            class="dropdown-item text-danger">
-                                            <i class="ph-trash me-2"></i>
-                                            Hapus
-                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="#" class="dropdown-item text-info" data-bs-toggle="modal"
+                                                data-bs-target="#modal_detail_{{ $itemtype['itemTypeId'] }}">
+                                                <i class="ph-list me-2"></i>
+                                                Detail
+                                            </a>
+                                            <a href="#" class="dropdown-item text-secondary edit-blood-type"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modal_edit_{{ $itemtype['itemTypeId'] }}"
+                                                data-item-type-id="{{ $itemtype['itemTypeId'] }}">
+                                                <i class="ph-pencil me-2"></i>
+                                                Edit
+                                            </a>
+                                            <a href="#" onclick="confirmDeleteItemType({{ $itemtype['itemTypeId'] }})"
+                                                class="dropdown-item text-danger">
+                                                <i class="ph-trash me-2"></i>
+                                                Hapus
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                @endforeach
+                            </td>
+                    @endforeach
+                @else
+                @endif
             </tbody>
         </table>
 
@@ -322,89 +326,98 @@
         </div>
 
         {{-- Edit Modal --}}
-        @foreach ($itemType['data'] as $itemtype)
-            <div id="modal_edit_{{ $itemtype['itemTypeId'] }}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit Jenis Barang</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        @if (isset($itemType['data']) && is_array($itemType['data']) && count($itemType['data']) > 0)
+            @foreach ($itemType['data'] as $itemtype)
+                <div id="modal_edit_{{ $itemtype['itemTypeId'] }}" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Jenis Barang</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form id="editItemTypeForm_{{ $itemtype['itemTypeId'] }}"
+                                action="{{ route('itemType.update', ['id' => $itemtype['itemTypeId']]) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-body">
+                                    <div class="container">
+                                        <div class="row mb-2">
+                                            <label class="col-lg-4 col-form-label">Jenis Barang:</label>
+                                            <div class="col-lg-7">
+                                                <input type="text" name="itemType" class="form-control"
+                                                    value="{{ $itemtype['itemType'] }}">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="col-lg-4 col-form-label">Keterangan:</label>
+                                            <div class="col-lg-7">
+                                                <textarea rows="3" cols="3" name="description" class="form-control">{{ $itemtype['description'] }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                </div>
+                            </form>
                         </div>
-                        <form id="editItemTypeForm_{{ $itemtype['itemTypeId'] }}"
-                            action="{{ route('itemType.update', ['id' => $itemtype['itemTypeId']]) }}" method="POST">
-                            @csrf
-                            @method('PUT')
+                    </div>
+                </div>
+            @endforeach
+        @else
+        @endif
+
+        {{-- Detail Modal --}}
+        @if (isset($itemType['data']) && is_array($itemType['data']) && count($itemType['data']) > 0)
+            @foreach ($itemType['data'] as $itemtype)
+                <div id="modal_detail_{{ $itemtype['itemTypeId'] }}" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Detail Jenis Barang</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
                             <div class="modal-body">
                                 <div class="container">
                                     <div class="row mb-2">
-                                        <label class="col-lg-4 col-form-label">Jenis Barang:</label>
+                                        <label for="detail_itemType_name" class="col-lg-4 col-form-label">Jenis
+                                            Barang:</label>
                                         <div class="col-lg-7">
-                                            <input type="text" name="itemType" class="form-control"
-                                                value="{{ $itemtype['itemType'] }}">
+                                            <label id="detail_itemType_name"
+                                                class="col-form-label">{{ $itemtype['itemType'] }}</label>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
-                                        <label class="col-lg-4 col-form-label">Keterangan:</label>
+                                        <label for="detail_itemType_description"
+                                            class="col-lg-4 col-form-label">Keterangan:</label>
                                         <div class="col-lg-7">
-                                            <textarea rows="3" cols="3" name="description" class="form-control">{{ $itemtype['description'] }}</textarea>
+                                            <label id="detail_itemType_description"
+                                                class="col-form-label">{{ $itemtype['description'] }}</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                             </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-
-        {{-- Detail Modal --}}
-        @foreach ($itemType['data'] as $itemtype)
-            <div id="modal_detail_{{ $itemtype['itemTypeId'] }}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Detail Jenis Satuan Barang</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container">
-                                <div class="row mb-2">
-                                    <label for="detail_itemType_name" class="col-lg-4 col-form-label">Jenis
-                                        Barang:</label>
-                                    <div class="col-lg-7">
-                                        <label id="detail_itemType_name"
-                                            class="col-form-label">{{ $itemtype['itemType'] }}</label>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="detail_itemType_description"
-                                        class="col-lg-4 col-form-label">Keterangan:</label>
-                                    <div class="col-lg-7">
-                                        <label id="detail_itemType_description"
-                                            class="col-form-label">{{ $itemtype['description'] }}</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        @else
+        @endif
 
     </div>
-    @foreach ($itemType['data'] as $itemtype)
-        <form id="delete-form-{{ $itemtype['itemTypeId'] }}"
-            action="{{ route('itemType.delete', ['id' => $itemtype['itemTypeId']]) }}" method="POST"
-            style="display: none">
-            @csrf
-            @method('DELETE')
-        </form>
-    @endforeach
+    @if (isset($itemType['data']) && is_array($itemType['data']) && count($itemType['data']) > 0)
+        @foreach ($itemType['data'] as $itemtype)
+            <form id="delete-form-{{ $itemtype['itemTypeId'] }}"
+                action="{{ route('itemType.delete', ['id' => $itemtype['itemTypeId']]) }}" method="POST"
+                style="display: none">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @else
+    @endif
 @endsection

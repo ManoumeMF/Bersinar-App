@@ -89,15 +89,118 @@
             DatatableBasic.init();
         });
     </script>
+
+    {{-- CRUD AJAX --}}
+    <script>
+        // Tambah Jenis Unit Bisnis
+        function addBusinessUnitType() {
+            const notyWarning = new Noty({
+                text: "Kedua field harus diisi sebelum mengirimkan form.",
+                type: "warning",
+                progressBar: false,
+                layout: 'topCenter',
+            });
+            const notyError = new Noty({
+                text: "Terjadi kesalahan saat mengirimkan data.",
+                type: "error",
+                progressBar: false,
+                layout: 'topCenter',
+            });
+            $("#addBusinessUnitTypeForm").on("submit", function(e) {
+                e.preventDefault();
+                let businessUnitTypeValue = $("input[name='businessUnitType']").val();
+                let descriptionValue = $("textarea[name='description']").val();
+                if (businessUnitTypeValue.trim() !== "" && descriptionValue.trim() !== "") {
+                    let formData = $(this).serialize();
+                    $.ajax({
+                        type: "POST",
+                        url: 'jenis-unit-bisnis/store',
+                        data: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(data) {
+                            $("#modal_default_tabCreate").modal("hide");
+                            $("#addBusinessUnitTypeForm")[0].reset();
+                            location.reload();
+                        },
+                        error: function(data) {
+                            notyError.setText(data.responseText ||
+                                "Terjadi kesalahan saat mengirimkan data.");
+                            notyError.show();
+                        },
+                    });
+                } else {
+                    notyWarning.show();
+                }
+            });
+        }
+
+        // Edit jenis unit bisnis
+        function editBusinessUnitType(sbuTypeId) {
+            $.ajax({
+                type: 'GET',
+                url: 'jenis-unit-bisnis/edit/' + sbuTypeId,
+                success: function(data) {
+                    $('#editBusinessUnitTypeId').val(data.sbuTypeId);
+                    $('#editBusinessUnitTypeForm input[name="businessUnitType"]').val(data
+                        .positionName);
+                    $('#editBusinessUnitTypeForm textarea[name="description"]').val(data
+                        .description);
+                    $('#modal_edit_' + sbuTypeId).modal('show');
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
+        }
+        $('#businessUnitTypeTable').on('click', '.edit-button', function() {
+            const id = $(this).data('id');
+            editBusinessUnitType(id);
+        });
+        $('#editBusinessUnitTypeForm').on('submit', function(e) {
+            e.preventDefault();
+            const id = $('#editBusinessUnitTypeId').val();
+            let formData = $(this).serialize();
+            $.ajax({
+                type: 'POST',
+                url: 'jenis-unit-bisnis/update/' + id,
+                data: formData + "&_method=PUT",
+                success: function(data) {
+                    $('#modal_edit_' + id).modal('hide');
+                    $(`#businessUnitTypeTable tbody tr[data-id="${id}"] td:nth-child(1)`).text($(
+                        '#updatePositionForm input[name="positionName"]').val());
+                    $(`#businessUnitTypeTable tbody tr[data-id="${id}"] td:nth-child(2)`).text($(
+                        '#updatePositionForm textarea[name="description"]').val());
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                }
+            });
+        });
+
+        // Hapus jenis unit bisnis
+        function confirmDeleteBusinessUnitType(sbuTypeId) {
+            const url = 'jenis-unit-bisnis/hapus/' + sbuTypeId;
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            ajaxDelete(url, csrfToken);
+        }
+
+        $(document).ready(function() {
+            addBusinessUnitType();
+        });
+    </script>
     <div class="card">
         <div class="card-header d-flex">
             <h5 class="mb-0">Daftar Jenis Unit Bisnis</h5>
             <div class="ms-auto">
-                <a class="btn btn-primary" href="{{ route('businessUnitTypes.create') }}"><i class="ph-plus-circle"></i><span
-                        class="d-none d-lg-inline-block ms-2">Tambah Jenis Unit Bisnis</span></a>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#modal_default_tabCreate"><i class="ph-plus-circle"></i><span
+                        class="d-none d-lg-inline-block ms-2">Tambah Baru</span></button>
             </div>
         </div>
-        <table class="table datatable-basic table-striped">
+        <table id="businessUnitTypeTable" class="table datatable-basic table-striped">
             <thead>
                 <tr>
                     <th>Jenis Unit Bisnis</th>
@@ -106,91 +209,174 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($businessUnitType['data'] as $tipeBisnisUnit)
-                    <tr>
-                        <td>{{ $tipeBisnisUnit['businessUnitType'] }}</td>
-                        <td>{{ $tipeBisnisUnit['description'] }}</td>
-                        <td class="text-center">
-                            <div class="d-inline-flex">
-                                <div class="dropdown">
-                                    <a href="#" class="text-body" data-bs-toggle="dropdown">
-                                        <i class="ph-list"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="{{ route('businessUnitTypes.detail', ['id' => $tipeBisnisUnit['sbuTypeId']]) }}"
-                                            class="dropdown-item text-info">
-                                            <i class="ph-list me-2"></i>
-                                            Detail
+                @if (isset($businessUnitType['data']) && is_array($businessUnitType['data']) && count($businessUnitType['data']) > 0)
+                    @foreach ($businessUnitType['data'] as $tipeBisnisUnit)
+                        <tr>
+                            <td>{{ $tipeBisnisUnit['businessUnitType'] }}</td>
+                            <td>{{ $tipeBisnisUnit['description'] }}</td>
+                            <td class="text-center">
+                                <div class="d-inline-flex">
+                                    <div class="dropdown">
+                                        <a href="#" class="text-body" data-bs-toggle="dropdown">
+                                            <i class="ph-list"></i>
                                         </a>
-                                        <a href="{{ route('businessUnitTypes.edit', ['id' => $tipeBisnisUnit['sbuTypeId']]) }}"
-                                            class="dropdown-item text-secondary">
-                                            <i class="ph-pencil me-2"></i>
-                                            Edit
-                                        </a>
-                                        <a href="#" class="dropdown-item text-danger"
-                                            onclick="confirmDeleteBusinessUnitType({{ $tipeBisnisUnit['sbuTypeId'] }})">
-                                            <i class="ph-trash me-2"></i>
-                                            Hapus
-                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="#" class="dropdown-item text-info" data-bs-toggle="modal"
+                                                data-bs-target="#modal_detail_{{ $tipeBisnisUnit['sbuTypeId'] }}">
+                                                <i class="ph-list me-2"></i>
+                                                Detail
+                                            </a>
+                                            <a href="#" class="dropdown-item text-secondary edit-position"
+                                                data-bs-toggle="modal" data-bs-target="#modal_edit_{{ $tipeBisnisUnit['sbuTypeId'] }}"
+                                                data-position-id="{{ $tipeBisnisUnit['sbuTypeId'] }}">
+                                                <i class="ph-pencil me-2"></i>
+                                                Edit
+                                            </a>
+                                            <a href="#" class="dropdown-item text-danger"
+                                                onclick="confirmDeleteBusinessUnitType({{ $tipeBisnisUnit['sbuTypeId'] }})">
+                                                <i class="ph-trash me-2"></i>
+                                                Hapus
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                @endif
+            </tbody>
+        </table>
+
+        {{-- Create Modal --}}
+        <div id="modal_default_tabCreate" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Tambah Baru</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="addBusinessUnitTypeForm">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row mb-2">
+                                    <label class="col-lg-4 col-form-label">Jenis Unit Bisnis:</label>
+                                    <div class="col-lg-7">
+                                        <input type="text" name="businessUnitType" class="form-control"
+                                            placeholder="Masukkan Jenis Unit Bisnis">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-lg-4 col-form-label">Keterangan:</label>
+                                    <div class="col-lg-7">
+                                        <textarea rows="3" cols="3" name="description" class="form-control" placeholder="Masukkan Keterangan"></textarea>
                                     </div>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Edit Modal --}}
+        @if (isset($businessUnitType['data']) && is_array($businessUnitType['data']) && count($businessUnitType['data']) > 0)
+            @foreach ($businessUnitType['data'] as $tipeBisnisUnit)
+                <div id="modal_edit_{{ $tipeBisnisUnit['sbuTypeId'] }}" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Jenis Unit Bisnis</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form id="editBusinessUnitTypeForm_{{ $tipeBisnisUnit['sbuTypeId'] }}"
+                                action="{{ route('businessUnitTypes.update', ['id' => $tipeBisnisUnit['sbuTypeId']]) }}"
+                                method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-body">
+                                    <div class="container">
+                                        <div class="row mb-2">
+                                            <label class="col-lg-4 col-form-label">Jenis Unit Bisnis:</label>
+                                            <div class="col-lg-7">
+                                                <input type="text" name="businessUnitType" class="form-control"
+                                                    value="{{ $tipeBisnisUnit['businessUnitType'] }}">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="col-lg-4 col-form-label">Keterangan:</label>
+                                            <div class="col-lg-7">
+                                                <textarea rows="3" cols="3" name="description" class="form-control">{{ $tipeBisnisUnit['description'] }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+        @endif
+
+        {{-- Detail Modal --}}
+        @if (isset($businessUnitType['data']) && is_array($businessUnitType['data']) && count($businessUnitType['data']) > 0)
+            @foreach ($businessUnitType['data'] as $tipeBisnisUnit)
+                <div id="modal_detail_{{ $tipeBisnisUnit['sbuTypeId'] }}" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Detail Jenis Unit Bisnis</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <div class="row mb-2">
+                                        <label for="detail_businessUnitType_name"
+                                            class="col-lg-4 col-form-label">Pekerjaan:</label>
+                                        <div class="col-lg-7">
+                                            <label id="detail_businessUnitType_name"
+                                                class="col-form-label">{{ $tipeBisnisUnit['businessUnitType'] }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="detail_businessUnitType_description"
+                                            class="col-lg-4 col-form-label">Keterangan:</label>
+                                        <div class="col-lg-7">
+                                            <label id="detail_businessUnitType_description"
+                                                class="col-form-label">{{ $tipeBisnisUnit['description'] }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+        @endif
     </div>
-    @foreach ($businessUnitType['data'] as $tipeBisnisUnit)
-        <form id="delete-form-{{ $tipeBisnisUnit['sbuTypeId'] }}"
-            action="{{ route('businessUnitTypes.hapus', $tipeBisnisUnit['sbuTypeId']) }}" method="POST"
-            style="display: none;">
-            @csrf
-            @method('DELETE')
-        </form>
-    @endforeach
-    <script>
-        function confirmDeleteBusinessUnitType(sbuTypeId) {
-            const swalInit = swal.mixin({
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: "btn btn-primary",
-                    cancelButton: "btn btn-danger",
-                    denyButton: "btn btn-light",
-                },
-            });
-            swalInit
-                .fire({
-                    title: "Apakah Anda Yakin?",
-                    text: "Data yang dihapus tidak dapat dipulihkan kembali!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Hapus",
-                    cancelButtonText: "Batal",
-                })
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "GET",
-                            url: 'jenis-unit-bisnis/hapus/' + sbuTypeId,
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(data) {
-                                swalInit.fire({
-                                    title: "Hapus Berhasil!",
-                                    text: "Data sudah dihapus!",
-                                    icon: "success",
-                                    showConfirmButton: false,
-                                });
-                                location.reload();
-                            },
-                            error: function(data) {
-                                Swal.fire("Error!", "Terjadi kesalahan saat menghapus data.", "error");
-                            },
-                        });
-                    }
-                });
-        }
-    </script>
+    @if (isset($businessUnitType['data']) && is_array($businessUnitType['data']) && count($businessUnitType['data']) > 0)
+        @foreach ($businessUnitType['data'] as $tipeBisnisUnit)
+            <form id="delete-form-{{ $tipeBisnisUnit['sbuTypeId'] }}"
+                action="{{ route('businessUnitTypes.hapus', $tipeBisnisUnit['sbuTypeId']) }}" method="POST"
+                style="display: none;">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @else
+    @endif
 @endsection

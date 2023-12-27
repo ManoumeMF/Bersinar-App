@@ -1,5 +1,4 @@
 @extends('layouts.admin.template')
-
 @section('content')
     <div class="card">
         <div class="card-header">
@@ -13,7 +12,7 @@
                         <div class="row mb-3">
                             <label class="col-lg-3 col-form-label">Jenis Satuan Barang:</label>
                             <div class="col-lg-8">
-                                <select class="form-select" name="jenis_satuan" aria-label="Default select example">
+                                <select class="form-select" name="uomTypeId" aria-label="Default select example">
                                     <option selected disabled>Pilih Jenis Satuan Barang</option>
                                     @foreach ($uomType['data'] as $item)
                                         <option value="{{ $item['uomTypeId'] }}">

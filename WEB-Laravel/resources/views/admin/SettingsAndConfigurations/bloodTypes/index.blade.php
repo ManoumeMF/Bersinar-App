@@ -73,7 +73,6 @@
             //
             // Return objects assigned to module
             //
-
             return {
                 init: function() {
                     _componentDatatableBasic();
@@ -164,7 +163,6 @@
             e.preventDefault();
             const id = $('#editBloodTypeId').val();
             let formData = $(this).serialize();
-            // const url = '/bloodType/update' + id;
             $.ajax({
                 type: 'POST',
                 url: 'golongan-darah/update/' + id,
@@ -185,51 +183,15 @@
 
         // Hapus bloodtype
         function confirmDeleteBloodType(bloodTypeId) {
-            const swalInit = swal.mixin({
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: "btn btn-primary",
-                    cancelButton: "btn btn-danger",
-                    denyButton: "btn btn-light",
-                },
-            });
-            swalInit
-                .fire({
-                    title: "Apakah Anda Yakin?",
-                    text: "Data yang dihapus tidak dapat dipulihkan kembali!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Hapus",
-                    cancelButtonText: "Batal",
-                })
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "GET",
-                            url: 'golongan-darah/delete/' + bloodTypeId,
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(data) {
-                                swalInit.fire({
-                                    title: "Hapus Berhasil!",
-                                    text: "Data sudah dihapus!",
-                                    icon: "success",
-                                    showConfirmButton: false,
-                                });
-                                location.reload();
-                            },
-                            error: function(data) {
-                                Swal.fire("Error!", "Terjadi kesalahan saat menghapus data.", "error");
-                            },
-                        });
-                    }
-                });
+            const url = 'golongan-darah/delete/' + bloodTypeId;
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            ajaxDelete(url, csrfToken);
         }
         $(document).ready(function() {
             addBloodType();
         });
     </script>
+
 
     <div class="card">
         <div class="card-header d-flex">
@@ -237,7 +199,7 @@
             <div class="ms-auto">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                     data-bs-target="#modal_default_tabCreate"><i class="ph-plus-circle"></i><span
-                        class="d-none d-lg-inline-block ms-2">Tambah Golongan Darah</span></button>
+                        class="d-none d-lg-inline-block ms-2">Tambah Baru</span></button>
             </div>
         </div>
         <table id="bloodTypeTable" class="table datatable-basic table-striped">
@@ -245,7 +207,7 @@
                 <tr>
                     <th>Golongan Darah</th>
                     <th>Keterangan</th>
-                    <th class="text-center">Actions</th>
+                    <th class="text-center">Tindakan</th>
                 </tr>
             </thead>
             <tbody>
@@ -265,11 +227,6 @@
                                             <i class="ph-list me-2"></i>
                                             Detail
                                         </a>
-                                        {{-- <a href="{{ route('bloodType.edit', ['id' => $bt['bloodTypeId']]) }}"
-                                            class="dropdown-item text-secondary">
-                                            <i class="ph-pencil me-2"></i>
-                                            Edit
-                                        </a> --}}
                                         <a href="#" class="dropdown-item text-secondary edit-blood-type"
                                             data-bs-toggle="modal" data-bs-target="#modal_edit_{{ $bt['bloodTypeId'] }}"
                                             data-blood-type-id="{{ $bt['bloodTypeId'] }}">
@@ -403,11 +360,11 @@
             </div>
         @endforeach
     </div>
-    @foreach ($bloodTypes['data'] as $bt)
+    {{-- @foreach ($bloodTypes['data'] as $bt)
         <form id="delete-form-{{ $bt['bloodTypeId'] }}" action="{{ route('bloodType.delete', $bt['bloodTypeId']) }}"
             method="POST" style="display: none;">
             @csrf
             @method('DELETE')
         </form>
-    @endforeach
+    @endforeach --}}
 @endsection

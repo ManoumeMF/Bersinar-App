@@ -18,39 +18,39 @@
     <!-- /global stylesheets -->
 
     <!-- Core JS files -->
+    <script src="{{ asset('admin_resources/assets/js/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <!-- /core JS files -->
 
     {{-- Sweet Alert --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script> --}}
-	<script src="{{asset('admin_resources/assets/js/vendor/notifications/sweet_alert.min.js')}}"></script>
+    <script src="{{ asset('admin_resources/assets/js/vendor/notifications/sweet_alert.min.js') }}"></script>
     {{-- /Sweet Alert --}}
 
     <!-- Theme JS files -->
-    <script src="{{ asset('admin_resources/assets/js/jquery/jquery.min.js') }}"></script>
-    {{-- <script src="{{ asset('admin_resources/assets/js/createReligion.js') }}" defer></script> --}}
+    <script src="{{ asset('admin_resources/assets_layout/js/app.js') }}"></script>
+    <script src="{{ asset('admin_resources/assets/js/vendor/ui/fullcalendar/main.min.js') }}"></script>
+    <script src="{{ asset('admin_resources/assets/demo/pages/fullcalendar_styling.js') }}"></script>
+
     <script src="{{ asset('admin_resources/assets/js/vendor/tables/datatables/datatables.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/tables/datatables/extensions/row_reorder.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/tables/datatables/extensions/responsive.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/ui/moment/moment.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/pickers/datepicker.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/notifications/bootbox.min.js') }}"></script>
-    <script src="{{ asset('admin_resources/assets/demo/pages/picker_date.js') }}"></script>
-    <script src="{{ asset('admin_resources/assets_layout/js/app.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/pickers/daterangepicker.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/uploaders/fileinput/fileinput.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/uploaders/fileinput/plugins/sortable.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/demo/pages/form_layouts.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/demo/pages/uploader_bootstrap.js') }}"></script>
-    <script src="{{asset('admin_resources/assets/js/vendor/forms/selects/select2.min.js')}}"></script>
+    <script src="{{ asset('admin_resources/assets/js/vendor/forms/selects/select2.min.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/js/vendor/forms/selects/bootstrap_multiselect.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/demo/pages/extra_sweetalert.js') }}"></script>
     <script src="{{ asset('admin_resources/assets/demo/pages/form_select2.js') }}"></script>
-    <script src="{{asset('admin_resources/assets/js/delete_alert.js')}}"></script>
-    <script src="{{asset('admin_resources/assets/js/vendor/notifications/noty.min.js')}}"></script>
-	<script src="{{asset('admin_resources/assets/demo/pages/extra_noty.js')}}"></script>
-
+    <script src="{{ asset('admin_resources/assets/js/delete_alert.js') }}"></script>
+    <script src="{{ asset('admin_resources/assets/js/vendor/notifications/noty.min.js') }}"></script>
+    <script src="{{ asset('admin_resources/assets/demo/pages/components_modals.js') }}"></script>
+    <script src="{{ asset('admin_resources/assets/demo/pages/extra_noty.js') }}"></script>
     <!-- /theme JS files -->
 </head>
 
@@ -441,7 +441,7 @@
                             <i class="ph-gear me-2"></i>
                             Account settings
                         </a>
-                        <a href="#" class="dropdown-item">
+                        <a href="{{route('autentikasi.login')}}" class="dropdown-item">
                             <i class="ph-sign-out me-2"></i>
                             Logout
                         </a>
@@ -485,11 +485,17 @@
                     <ul class="nav nav-sidebar" data-nav-type="accordion">
                         <li class="nav-item-divider"></li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{route('dashboard.index')}}" class="nav-link">
                                 <i class="ph-house"></i>
                                 <span>
                                     Dashboard
                                 </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('schedule.index') }}" class="nav-link">
+                                <i class="ph-calendar"></i>
+                                <span>Jadwal</span>
                             </a>
                         </li>
                         <li class="nav-item nav-item-submenu">
@@ -591,6 +597,93 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item nav-item-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="ph ph-folder"></i>
+                                <span>Manajemen Persediaan</span>
+                            </a>
+                            <ul class="nav-group-sub collapse">
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Surat Jalan</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('assignment.index') }}"
+                                                class="nav-link">Surat Jalan</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Penimbangan Barang</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('weighing.index') }}"
+                                                class="nav-link">Penimbangan Barang</a></li>
+                                        <li class="nav-item"><a href="{{ route('approveweighing.index') }}"
+                                                class="nav-link">Approval Penimbangan Barang</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Penerimaan Barang</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('acceptitem.index') }}"
+                                                class="nav-link">Penerimaan Barang</a></li>
+                                        {{-- <li class="nav-item"><a href="{{ route('approveweighing.index') }}"
+                                                class="nav-link">Approval Penimbangan Barang</a></li> --}}
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Pembelian Barang</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('purchasing.index') }}"
+                                                class="nav-link">Pembelian Barang</a></li>
+                                        <li class="nav-item"><a href="{{ route('approvepurchasing.index') }}"
+                                                class="nav-link">Approval Pembelian Barang</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Stok Barang</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('itemstocklist.index') }}"
+                                                class="nav-link">Daftar Stok Barang</a></li>
+                                        <li class="nav-item"><a href="{{ route('adaptationitemstock.index') }}"
+                                                class="nav-link">Penyesuaian Stok Barang</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item nav-item-submenu">
+                            <a href="#" class="nav-link">
+                                <i class="ph ph-folder"></i>
+                                <span>Manajemen Pengeluaran</span>
+                            </a>
+                            <ul class="nav-group-sub collapse">
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Sales Order</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('salesorder.index') }}"
+                                                class="nav-link">Sales Order</a></li>
+                                        <li class="nav-item"><a href="{{ route('approvesalesorder.index') }}"
+                                                class="nav-link">Approval Sales Order</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Serah Terima Penjualan Barang</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('overhanditem.index') }}"
+                                                class="nav-link">Serah Terima Penjualan Barang</a></li>
+                                        <li class="nav-item"><a href="{{ route('approveoverhanditem.index') }}"
+                                                class="nav-link">Approval Serah Terima Penjualan Barang</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-item-submenu">
+                                    <a href="#" class="nav-link">Pengiriman Barang</a>
+                                    <ul class="nav-group-sub collapse">
+                                        <li class="nav-item"><a href="{{ route('itemdelivery.index') }}"
+                                                class="nav-link">Pengiriman Barang</a></li>
+                                        <li class="nav-item"><a href="{{ route('approveitemdelivery.index') }}"
+                                                class="nav-link">Approval Pengiriman Barang</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -653,7 +746,7 @@
                                     target="_blank">
                                     <div class="d-flex align-items-center mx-md-1">
                                         <img src="{{ asset('admin_resources/assets/images/icons/Logo_ITDEL transparent 1.png') }}"
-                                            alt="">
+                                            style="height:32px; width:32px" alt="">
                                     </div>
                                 </a>
                             </li>
@@ -661,9 +754,8 @@
                                 <a href="https://www.del.ac.id/" class="navbar-nav-link navbar-nav-link-icon rounded"
                                     target="_blank">
                                     <div class="d-flex align-items-center mx-md-1">
-                                        <img src="{{ asset('admin_resources/assets/images/icons/Logo_ITDEL transparent 1.png') }}"
-                                            alt="">
-
+                                        <img src="{{ asset('admin_resources/assets/images/icons/bank-sampah2.png') }}"
+                                            style="height:32px; width:32px" alt="">
                                     </div>
                                 </a>
                             </li>
@@ -671,8 +763,8 @@
                                 <a href="https://www.del.ac.id/" class="navbar-nav-link navbar-nav-link-icon rounded"
                                     target="_blank">
                                     <div class="d-flex align-items-center mx-md-1">
-                                        <img src="{{ asset('admin_resources/assets/images/icons/Logo_ITDEL transparent 1.png') }}"
-                                            alt="">
+                                        <img src="{{ asset('admin_resources/assets/images/icons/kemdikbud.png') }}"
+                                            style="height:32px; width:32px" alt="">
                                     </div>
                                 </a>
                             </li>
@@ -895,5 +987,22 @@
     </div> --}}
     <!-- /notifications -->
 </body>
+<script>
+    $(document).ready(function() {
+        // Menggunakan class yang sesuai dengan template Anda
+        $('.sidebar-main-toggle').click(function(e) {
+            e.preventDefault();
+            // Toggle state sidebar
+            var sidebarState = $('.sidebar').hasClass('sidebar-collapsed') ? 'expanded' : 'collapsed';
+            $('.sidebar').toggleClass('sidebar-collapsed');
+            localStorage.setItem('sidebarState', sidebarState);
+        });
+
+        // Cek state sidebar ketika memuat halaman
+        if (localStorage.getItem('sidebarState') === 'expanded') {
+            $('.sidebar').removeClass('sidebar-collapsed');
+        }
+    });
+</script>
 
 </html>

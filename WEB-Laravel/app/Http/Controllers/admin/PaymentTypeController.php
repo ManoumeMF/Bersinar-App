@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use DB;
 
 class PaymentTypeController extends Controller
 {
@@ -75,12 +74,17 @@ class PaymentTypeController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::put(config('app.api_url') . 'paymentType/update', [
+            $isAging = $request->has('isAging') ? 1 : 0;
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->put(config('app.api_url') . 'paymentType/update', [
                 "idPaymentType" => (int)$id,
                 'paymentTypeCode' => $request->input('paymentTypeCode'),
                 'paymentTypeName' => $request->input('paymentTypeName'),
+                'isAging' => $isAging,
                 'description' => $request->input('description'),
             ]);
+
             if ($response->successful()) {
                 return redirect()->route('paymentTypes.index')->with('success', 'Tipe Pembayaran berhasil diupdate.');
             } else {
@@ -92,6 +96,7 @@ class PaymentTypeController extends Controller
     }
 
 
+
     public function destroy($id)
     {
         $response = Http::delete(config('app.api_url') . 'paymentType/deleteById?id=' . $id);
@@ -100,6 +105,5 @@ class PaymentTypeController extends Controller
         } else {
             return back()->withErrors('Gagal menghapus Tipe Pembayaran.');
         }
-
     }
 }

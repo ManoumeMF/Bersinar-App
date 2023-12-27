@@ -16,8 +16,8 @@
                             <div class="col-lg-8">
                                 <select name="parent_id" class="form-select" aria-label="Default select example">
                                     <option value="">Pilih Parent</option>
-                                    @foreach ($parents as $parent)
-                                        <option value="{{ $parent->partnerType }}">{{ $parent->partnerType }}</option>
+                                    @foreach ($parents['data'] as $parent)
+                                        <option value="{{ $parent['partnerType'] }}">{{ $parent['partnerType'] }}</option>
                                     @endforeach
                                 </select>
                             </div>

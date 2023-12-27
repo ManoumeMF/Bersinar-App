@@ -1,5 +1,116 @@
 @extends('layouts.admin.template')
 @section('content')
+    <script>
+        $(document).ready(function() {
+            // Your existing Select2 initialization
+            $('.select').each(function() {
+                if ($(this).closest('.modal').length) {
+                    // If the Select2 element is inside a modal
+                    $(this).select2({
+                        dropdownParent: $(this).closest('.modal')
+                    });
+                } else {
+                    // If the Select2 element is not inside a modal
+                    $(this).select2();
+                }
+            });
+        });
+    </script>
+    <script>
+        // Setup module
+        // ------------------------------
+
+        var DateTimePickers = function() {
+
+
+            //
+            // Setup module components
+            //
+
+            // Daterange picker
+            const _componentDaterange = function() {
+                if (!$().daterangepicker) {
+                    console.warn('Warning - daterangepicker.js is not loaded.');
+                    return;
+                }
+
+                // Basic initialization
+                $('.daterange-basic').daterangepicker({
+                    parentEl: '.content-inner'
+                });
+                $('.daterange-time').daterangepicker({
+                    parentEl: '.content-inner',
+                    timePicker: true,
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    }
+                });
+                $('.daterange-increments').daterangepicker({
+                    parentEl: '.content-inner',
+                    timePicker: true,
+                    timePickerIncrement: 10,
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    }
+                });
+
+            };
+
+            // Date picker
+            const _componentDatepicker = function() {
+                if (typeof Datepicker == 'undefined') {
+                    console.warn('Warning - datepicker.min.js is not loaded.');
+                    return;
+                }
+
+                // Hide on selection
+                const dpAutoHideElement = document.querySelector('.datepicker-autohide');
+                if (dpAutoHideElement) {
+                    const dpAutoHide = new Datepicker(dpAutoHideElement, {
+                        container: '.content-inner',
+                        buttonClass: 'btn',
+                        prevArrow: document.dir == 'rtl' ? '&rarr;' : '&larr;',
+                        nextArrow: document.dir == 'rtl' ? '&larr;' : '&rarr;',
+                        autohide: true,
+                        format: 'yyyy-mm-dd'
+                    });
+                }
+
+                const dpAutoHideElement2 = document.querySelector('.datepicker-autohide2');
+                if (dpAutoHideElement2) {
+                    const dpAutoHide = new Datepicker(dpAutoHideElement2, {
+                        container: '.content-inner',
+                        buttonClass: 'btn',
+                        prevArrow: document.dir == 'rtl' ? '&rarr;' : '&larr;',
+                        nextArrow: document.dir == 'rtl' ? '&larr;' : '&rarr;',
+                        autohide: true,
+                        format: 'yyyy-mm-dd'
+                    });
+                }
+
+            };
+
+
+            //
+            // Return objects assigned to module
+            //
+
+            return {
+                init: function() {
+                    _componentDaterange();
+                    _componentDatepicker();
+                }
+            }
+        }();
+
+
+        // Initialize module
+        // ------------------------------
+
+        document.addEventListener('DOMContentLoaded', function() {
+            DateTimePickers.init();
+        });
+    </script>
     <!-- Basic layout -->
     <div class="card">
         <div class="card-header">
@@ -8,63 +119,91 @@
         <div class="container mt-3 mx-auto">
             <div class="row">
                 <div class="d-lg-flex">
+                    <style>
+                        @media (min-width: 992px) {
+                            .nav-tabs-vertical {
+                                position: absolute;
+                                top: 75px;
+                                left: 10px;
+                                margin: 0;
+                                border-right: none;
+                            }
+
+                            .nav-tabs-vertical~.tab-content {
+                                margin-left: 200px;
+                            }
+
+                            .nav-tabs-vertical .nav-item {
+                                width: 100%;
+                            }
+
+                            .nav-tabs-vertical .nav-link {
+                                border-radius: 0;
+                                /* border: none; */
+                                text-align: left;
+                            }
+                        }
+                    </style>
                     <ul class="nav nav-tabs nav-tabs-vertical nav-tabs-vertical-start wmin-lg-200 me-lg-3 mb-3 mb-lg-0">
                         <li class="nav-item">
                             <a href="#vertical-left-tab1" class="nav-link active" data-bs-toggle="tab">
-                                {{-- <i class="ph-user-circle me-2"></i> --}}
-                                Data Pribadi Pegawai
+                                <i class="ph ph-user me-2"></i> Data Pribadi
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#vertical-left-tab2" class="nav-link" data-bs-toggle="tab">
-                                {{-- <i class="ph-currency-circle-dollar me-2"></i> --}}
-                                Alamat Pegawai
+                                <i class="ph-address-book me-2"></i>
+                                Alamat
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#vertical-left-tab3" class="nav-link" data-bs-toggle="tab">
-                                {{-- <i class="ph-shopping-cart me-2"></i> --}}
-                                Identitas Pegawai
+                                <i class="ph-thin ph-identification-card me-2"></i>
+                                Identitas
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#vertical-left-tab4" class="nav-link" data-bs-toggle="tab">
-                                {{-- <i class="ph-shopping-cart me-2"></i> --}}
+                                <i class="ph-thin ph-hard-drives me-2"></i>
                                 Data Kepegawaian
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#vertical-left-tab5" class="nav-link" data-bs-toggle="tab">
-                                {{-- <i class="ph-shopping-cart me-2"></i> --}}
-                                Rekening Pegawai
+                                <i class="ph ph-bank me-2"></i>
+                                Rekening
                             </a>
                         </li>
                     </ul>
                     <div class="tab-content flex-lg-fill">
                         <div class="tab-pane fade show active" id="vertical-left-tab1">
-                            <form action="#">
+                            <form action="{{ route('employeePersonal.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 {{-- <div class="row mb-3">
                                     <label class="col-lg-4 col-form-label d-flex justify-content-center">Data Pribadi
                                         Offtaker</label>
                                 </div> --}}
-                                <div class="row justify-content-center">
+                                @csrf
+                                <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Nama Lengkap (Sesuai Identitas):</label>
                                     <div class="col-lg-7">
-                                        <input type="text" class="form-control" placeholder="Masukkan Nama Lengkap">
+                                        <input type="text" class="form-control" placeholder="Masukkan Nama Lengkap"
+                                            name="employeeName">
                                     </div>
                                 </div>
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Tempat, Tanggal Lahir:</label>
                                     <div class="col-lg-4">
-                                        <input type="text" class="form-control" placeholder="Masukkan Tempat Lahir">
+                                        <input type="text" class="form-control" placeholder="Masukkan Tempat Lahir"
+                                            name="birthPlace">
                                     </div>
-                                    <div class="col-lg-3">
+                                    <div class="col-sm-3">
                                         <div class="input-group">
+                                            <input id="tanggal-kirim" name="birthDate" type="text"
+                                                class="form-control datepicker-autohide" placeholder="31 - 10 - 2023">
                                             <span class="input-group-text">
                                                 <i class="ph-calendar"></i>
                                             </span>
-                                            <input type="text" class="form-control datepicker-autohide"
-                                                placeholder="Tanggal Lahir">
                                         </div>
                                     </div>
                                 </div>
@@ -73,11 +212,13 @@
                                     <div class="col-lg-7">
                                         <div class="form-check-horizontal">
                                             <label class="form-check form-check-inline">
-                                                <input type="radio" class="form-check-input" name="gender" unchecked>
+                                                <input type="radio" class="form-check-input" name="sex"
+                                                    value="Laki-laki">
                                                 <span class="form-check-label">Laki-laki</span>
                                             </label>
                                             <label class="form-check form-check-inline">
-                                                <input type="radio" class="form-check-input" name="gender">
+                                                <input type="radio" class="form-check-input" name="sex"
+                                                    value="Perempuan">
                                                 <span class="form-check-label">Perempuan</span>
                                             </label>
                                         </div>
@@ -86,13 +227,19 @@
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Agama:</label>
                                     <div class="col-lg-7">
+                                        @php
+                                            $response = Http::get(config('app.api_url') . 'religion/viewAll');
+                                            $religion = $response->json();
+                                        @endphp
                                         <div class="input-group">
                                             <select data-placeholder="Pilih Agama" class="form-control select"
-                                                data-width="1%">
+                                                data-width="1%" name="religionId">
                                                 <option></option>
-                                                <option value="1">Katolik</option>
-                                                <option value="2">Katolik</option>
-                                                <option value="3">Hindu</option>
+                                                <optgroup label="Agama">
+                                                    @foreach ($religion['data'] as $rl)
+                                                        <option value="{{ $rl['religionId'] }}">
+                                                            {{ $rl['religionName'] }}</option>
+                                                    @endforeach
                                             </select>
                                             <button type="button" class="btn btn-primary "><i
                                                     class="ph-plus-circle"></i></button>
@@ -102,13 +249,20 @@
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Status Pernikahan:</label>
                                     <div class="col-lg-7">
+                                        @php
+                                            $response = Http::get(config('app.api_url') . 'statusType/viewAll');
+                                            $statusType = $response->json();
+                                        @endphp
                                         <div class="input-group">
                                             <select data-placeholder="Pilih Status" class="form-control select"
-                                                data-width="1%">
+                                                data-width="1%" name="marriageStatusId">
                                                 <option></option>
-                                                <option value="1">Sudah Kawin</option>
-                                                <option value="2">Belum Kawin</option>
-                                                <option value="3">Cerai</option>
+                                                <optgroup label="Status Pernikahan">
+                                                    @foreach ($statusType['data'] as $sT)
+                                                        <option value="{{ $sT['statusTypeId'] }}">
+                                                            {{ $sT['statusType'] }}</option>
+                                                    @endforeach
+                                                </optgroup>
                                             </select>
                                             <button type="button" class="btn btn-primary "><i
                                                     class="ph-plus-circle"></i></button>
@@ -120,12 +274,13 @@
                                     <div class="col-lg-7">
                                         <div class="form-check-horizontal">
                                             <label class="form-check form-check-inline">
-                                                <input type="radio" class="form-check-input" name="kewarganegaraan"
-                                                    unchecked>
+                                                <input type="radio" class="form-check-input" name="nationalityStatus"
+                                                    value="1" unchecked>
                                                 <span class="form-check-label">WNI</span>
                                             </label>
                                             <label class="form-check form-check-inline">
-                                                <input type="radio" class="form-check-input" name="kewarganegaraan">
+                                                <input type="radio" class="form-check-input" name="nationalityStatus"
+                                                    value="2">
                                                 <span class="form-check-label">WNA</span>
                                             </label>
                                         </div>
@@ -134,33 +289,36 @@
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Nomor Telepon:</label>
                                     <div class="col-lg-7">
-                                        <input type="text" class="form-control" placeholder="Masukkan Nomor Telepon">
+                                        <input type="text" class="form-control" placeholder="Masukkan Nomor Telepon"
+                                            name="teleponNumber">
                                     </div>
                                 </div>
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Nomor Telepon Seluler:</label>
                                     <div class="col-lg-7">
                                         <input type="text" class="form-control"
-                                            placeholder="Masukkan Nomor Telepon Seluler">
+                                            placeholder="Masukkan Nomor Telepon Seluler" name="mobileNumber">
                                     </div>
                                 </div>
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Nomor WhatsApp:</label>
                                     <div class="col-lg-7">
-                                        <input type="text" class="form-control" placeholder="Masukkan Nomor WhatsApp">
+                                        <input type="text" class="form-control" placeholder="Masukkan Nomor WhatsApp"
+                                            name="whatsappNumber">
                                     </div>
                                 </div>
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Kontak Person:</label>
                                     <div class="col-lg-7">
                                         <input type="text" class="form-control"
-                                            placeholder="Masukkan Nomor Kontak Person">
+                                            placeholder="Masukkan Nomor Kontak Person" name="personType">
                                     </div>
                                 </div>
                                 <div class="row mb-3 justify-content-center">
                                     <label class="col-lg-3 col-form-label">Email:</label>
                                     <div class="col-lg-7">
-                                        <input type="email" class="form-control" placeholder="Masukkan Email">
+                                        <input type="email" class="form-control" placeholder="Masukkan Email"
+                                            name="email">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -185,7 +343,7 @@
                                     <div class="d-flex justify-content-end">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#modal_default_tab2"><i class="ph-plus-circle"></i><span
-                                                class="d-none d-lg-inline-block ms-2">Tambah Alamat</span></button>
+                                                class="d-none d-lg-inline-block ms-2">Tambah Baru</span></button>
                                     </div>
                                     <div id="modal_default_tab2" class="modal fade" tabindex="-1">
                                         <div class="modal-dialog">
@@ -201,12 +359,14 @@
                                                             <label class="col-lg-4 col-form-label">Provinsi:</label>
                                                             <div class="col-lg-7">
                                                                 <div class="input-group">
-                                                                    <select data-placeholder="Pilih Provinsi"
-                                                                        class="form-control select" data-width="1%">
+                                                                    <select class="form-control select"
+                                                                        data-placeholder="Pilih Provinsi" data-width="1%">
                                                                         <option></option>
-                                                                        <option value="1">Sumatera Utara</option>
-                                                                        <option value="2">DKI Jakarta</option>
-                                                                        <option value="3">NTB</option>
+                                                                        <optgroup label="Provinsi">
+                                                                            <option value="1">Sumatera Utara</option>
+                                                                            <option value="2">DKI Jakarta</option>
+                                                                            <option value="3">NTB</option>
+                                                                        </optgroup>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -322,7 +482,7 @@
                                     </div> --}}
                                     <style>
                                         .table-responsive {
-                                            padding-top: 10px
+                                            /* padding-top: 10px */
                                         }
 
                                         @media screen and (max-width:768px) {
@@ -333,7 +493,7 @@
                                         }
                                     </style>
                                     <div class="table-responsive">
-                                        <table class="table table-bordered">
+                                        <table class="table table-bordered mt-2">
                                             <thead class="text-center">
                                                 <tr>
                                                     <th>Nama Alamat</th>
@@ -368,10 +528,10 @@
                             <div class="row justify-content-center">
                                 <div class="col-md-10 mb-5">
                                     <h6>Identitas Pegawai</h6>
-                                    <div class="d-flex justify-content-end">
+                                    <div class="d-flex justify-content-end mb-2">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#modal_default_tab3"><i class="ph-plus-circle"></i><span
-                                                class="d-none d-lg-inline-block ms-2">Tambah Identitas</span></button>
+                                                class="d-none d-lg-inline-block ms-2">Tambah Baru</span></button>
                                     </div>
                                     <div id="modal_default_tab3" class="modal fade " tabindex="-1">
                                         <div class="modal-dialog">
@@ -579,10 +739,10 @@
                             <div class="row justify-content-center">
                                 <div class="col-md-10 mb-5">
                                     <h6>Rekening Pegawai</h6>
-                                    <div class="d-flex justify-content-end">
+                                    <div class="d-flex justify-content-end mb-2">
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#modal_default_tab5"><i class="ph-plus-circle"></i><span
-                                                class="d-none d-lg-inline-block ms-2">Tambah Barang</span></button>
+                                                class="d-none d-lg-inline-block ms-2">Tambah Baru</span></button>
                                     </div>
                                     <div id="modal_default_tab5" class="modal fade " tabindex="-1">
                                         <div class="modal-dialog">

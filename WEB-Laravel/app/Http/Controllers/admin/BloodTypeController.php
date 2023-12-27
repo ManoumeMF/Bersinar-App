@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Http;
 
 class BloodTypeController extends Controller
 {
+    protected $httpClient;
+    public function __construct(Http $httpClient)
+    {
+        $this->httpClient = $httpClient;
+    }
+
     public function index()
     {
         $response = Http::get(Config('app.api_url') . 'bloodType/viewAll');
@@ -81,14 +87,14 @@ class BloodTypeController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        $response = Http::get(Config('app.api_url') . 'bloodType/viewById?id=' . $id);
-        if ($response->successful()) {
-            $bloodType = $response->json()['data'][0];
-            return view('admin.SettingsAndConfigurations.bloodTypes.show', compact('bloodType'));
-        } else {
-            return redirect()->route('bloodType.index')->with('error', 'Golongan Darah tidak ditemukan.');
-        }
-    }
+    // public function show($id)
+    // {
+    //     $response = Http::get(Config('app.api_url') . 'bloodType/viewById?id=' . $id);
+    //     if ($response->successful()) {
+    //         $bloodType = $response->json()['data'][0];
+    //         return view('admin.SettingsAndConfigurations.bloodTypes.show', compact('bloodType'));
+    //     } else {
+    //         return redirect()->route('bloodType.index')->with('error', 'Golongan Darah tidak ditemukan.');
+    //     }
+    // }
 }

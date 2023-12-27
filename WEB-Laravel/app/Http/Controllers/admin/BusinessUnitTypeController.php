@@ -11,7 +11,7 @@ class BusinessUnitTypeController extends Controller
 {
     public function index()
     {
-        $response = Http::get(Config('app.api_url') . 'bisnisUnitType/viewAll');
+        $response = Http::get(Config('app.api_url') . 'businessUnitType/viewAll');
         $businessUnitType = $response->json();
         return view('admin.SettingsAndConfigurations.businessTypes.index', compact('businessUnitType'));
     }
@@ -29,7 +29,7 @@ class BusinessUnitTypeController extends Controller
             'description' => 'required',
         ]);
 
-        $response = Http::post(Config('app.api_url') . 'bisnisUnitType/insert', [
+        $response = Http::post(Config('app.api_url') . 'businessUnitType/insert', [
             'businessUnitType' => $request->input('businessUnitType'),
             'description' => $request->input('description')
         ]);
@@ -43,7 +43,7 @@ class BusinessUnitTypeController extends Controller
 
     public function edit($id)
     {
-        $response = Http::get(Config('app.api_url') . 'bisnisUnitType/viewById?id=' . $id);
+        $response = Http::get(Config('app.api_url') . 'businessUnitType/viewById?id=' . $id);
         $temp = $response->json();
         $businessUnitTypeData = $temp['data'];
         if (!$businessUnitTypeData) {
@@ -55,7 +55,7 @@ class BusinessUnitTypeController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::put(config('app.api_url') . 'bisnisUnitType/update', [
+            $response = Http::put(config('app.api_url') . 'businessUnitType/update', [
                 "sbuTypeId" => (int)$id,
                 'businessUnitType' => $request->input('businessUnitType'),
                 'description' => $request->input('description'),
@@ -71,30 +71,9 @@ class BusinessUnitTypeController extends Controller
         }
     }
 
-    // public function update(Request $request, $id)
-    // {
-    //     try {
-    //         $request->validate([
-    //             'businessUnitType' => 'required',
-    //             'description' => 'required',
-    //         ]);
-
-    //         DB::table('businessUnitType')
-    //             ->where('sbuTypeId', $id)
-    //             ->update([
-    //                 'businessUnitType' => $request->input('businessUnitType'),
-    //                 'description' => $request->input('description')
-    //             ]);
-
-    //         return redirect()->route('businessUnitTypes.index')->with('success', 'Jenis Unit Bisnis telah diperbarui.');
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('businessUnitTypes.edit', $id)->with('error', 'Jenis Unit Bisnis gagal diperbarui');
-    //     }
-    // }
-
     public function hapus($id)
     {
-        $response = Http::delete(config('app.api_url') . 'bisnisUnitType/deleteById?id=' . $id);
+        $response = Http::delete(config('app.api_url') . 'businessUnitType/deleteById?id=' . $id);
         if ($response->successful()) {
             return redirect()->route('businessUnitTypes.index')->with('success', 'Jenis Unit Bisnis berhasil dihapus.');
         } else {
@@ -104,10 +83,9 @@ class BusinessUnitTypeController extends Controller
 
     public function detail($id)
     {
-        $response = Http::get(config('app.api_url') . 'bisnisUnitType/viewById?id=' . $id);
+        $response = Http::get(config('app.api_url') . 'businessUnitType/viewById?id=' . $id);
         if ($response->successful()) {
             $businessUnitType = $response->json()['data'];
-
             return view('admin.SettingsAndConfigurations.businessTypes.detail', compact('businessUnitType'));
         } else {
             return redirect()->route('businessUnitTypes.index')->with('error', 'Jenis Unit Bisnis tidak ditemukan.');

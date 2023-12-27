@@ -3,20 +3,27 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 
 class AccountCategoryController extends Controller
 {
-    public function index()
+    protected $httpClient;
+    public function __construct(Http $httpClient)
     {
-        $response = Http::get(Config('app.api_url') . 'accountCategory/viewAll');
+        $this->httpClient = $httpClient;
+    }
+
+    public function index(): View
+    {
+        $response = $this->httpClient::get(Config('app.api_url') . 'accountCategory/viewAll');
         $accountCategory = $response->json();
         return view('admin.SettingsAndConfigurations.accountCategory.index', compact('accountCategory'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view('admin.SettingsAndConfigurations.accountCategory.create');
     }
@@ -28,7 +35,7 @@ class AccountCategoryController extends Controller
             'description' => 'required',
         ]);
 
-        $response = Http::post(Config('app.api_url') . 'accountCategory/insert', [
+        $response = $this->httpClient::post(Config('app.api_url') . 'accountCategory/insert', [
             'accountCategory' => $request->input('accountCategory'),
             'description' => $request->input('description')
         ]);
@@ -40,9 +47,9 @@ class AccountCategoryController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit($id): View
     {
-        $response = Http::get(Config('app.api_url') . 'accountCategory/viewById?id=' . $id);
+        $response = $this->httpClient::get(Config('app.api_url') . 'accountCategory/viewById?id=' . $id);
         $temp = $response->json();
         $accountCategoryData = $temp['data'];
         // return dd($accountCategoryData);
@@ -58,7 +65,7 @@ class AccountCategoryController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::put(config('app.api_url') . 'accountCategory/update', [
+            $response = $this->httpClient::put(config('app.api_url') . 'accountCategory/update', [
                 "accountCategoryId" => (int)$id,
                 'accountCategory' => $request->input('accountCategory'),
                 'description' => $request->input('description'),
@@ -74,9 +81,9 @@ class AccountCategoryController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($id): View
     {
-        $response = Http::get(Config('app.api_url') . 'accountCategory/viewById?id=' . $id);
+        $response = $this->httpClient::get(Config('app.api_url') . 'accountCategory/viewById?id=' . $id);
         if ($response->successful()) {
             $accountCategory = $response->json()['data'];
 
@@ -88,7 +95,7 @@ class AccountCategoryController extends Controller
 
     public function delete($id)
     {
-        $response = Http::delete(config('app.api_url') . 'accountCategory/deleteById?id=' . $id);
+        $response = $this->httpClient::delete(config('app.api_url') . 'accountCategory/deleteById?id=' . $id);
         if ($response->successful()) {
             return redirect()->route('accountCategory.index')->with('success', 'Kategori Rekening berhasil dihapus.');
         } else {

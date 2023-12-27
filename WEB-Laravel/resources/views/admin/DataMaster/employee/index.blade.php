@@ -79,7 +79,7 @@
         <div class="card-header d-flex">
             <h5 class="mb-0">Daftar Pegawai</h5>
             <div class="ms-auto">
-                <a class="btn btn-primary" href="{{route('employeePersonal.create')}}"><i class="ph-plus-circle"></i><span
+                <a class="btn btn-primary" href="{{ route('employeePersonal.create')}}"><i class="ph-plus-circle"></i><span
                         class="d-none d-lg-inline-block ms-2">Tambah Pegawai</span></a>
             </div>
         </div>
@@ -95,40 +95,41 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Hello</td>
-                    <td>World</td>
-                    <td>Pikacu</td>
-                    <td>Marth</td>
-                    <td><a href="#">Enright</a></td>
-                    <td class="text-center">
-                        <div class="d-inline-flex">
-                            <div class="dropdown">
-                                <a href="#" class="text-body" data-bs-toggle="dropdown">
-                                    <i class="ph-list"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <a href="#"
-                                        class="dropdown-item text-info">
-                                        <i class="ph-list me-2"></i>
-                                        Detail
-                                    </a>
-                                    <a href="#"
-                                        class="dropdown-item text-secondary">
-                                        <i class="ph-pencil me-2"></i>
-                                        Edit
-                                    </a>
-                                    <a href="#" class="dropdown-item text-danger"
-                                        {{-- onclick="confirmDelete({{ $tipeStatus->statusTypeId }})" --}}
-                                        >
-                                        <i class="ph-trash me-2"></i>
-                                        Hapus
-                                    </a>
+                @if (isset($employeePersonal['data']) && is_array($employeePersonal['data']) && count($employeePersonal['data']) > 0)
+                    @foreach ($employeePersonal['data'] as $employee)
+                        <tr>
+                            <td>123123</td>
+                            <td>{{$employee['employeeName']}}</td>
+                            <td>Pikacu</td>
+                            <td>Marth</td>
+                            <td>Enright</td>
+                            <td class="text-center">
+                                <div class="d-inline-flex">
+                                    <div class="dropdown">
+                                        <a href="#" class="text-body" data-bs-toggle="dropdown">
+                                            <i class="ph-list"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="#" class="dropdown-item text-info">
+                                                <i class="ph-list me-2"></i>
+                                                Detail
+                                            </a>
+                                            <a href="#" class="dropdown-item text-secondary">
+                                                <i class="ph-pencil me-2"></i>
+                                                Edit
+                                            </a>
+                                            <a href="#" class="dropdown-item text-danger">
+                                                <i class="ph-trash me-2"></i>
+                                                Hapus
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                @endif
             </tbody>
         </table>
     </div>

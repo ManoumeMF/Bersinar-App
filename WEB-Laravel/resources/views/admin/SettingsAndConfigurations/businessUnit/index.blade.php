@@ -88,6 +88,16 @@
             DatatableBasic.init();
         });
     </script>
+
+    {{-- CRUD AJAX --}}
+    <script>
+        // Delete Departemen
+        function confirmDeleteBusinessUnit(businessUnitId) {
+            const url = 'bisnis-unit/hapus/' + businessUnitId;
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            ajaxDelete(url, csrfToken);
+        }
+    </script>
     <div class="card">
         <div class="card-header d-flex">
             <h5 class="mb-0">Daftar Unit Bisnis</h5>
@@ -108,41 +118,113 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($businessUnits as $bu)
-                    <tr>
-                        <td>{{ $bu->businessUnitCode }}</td>
-                        <td>{{ $bu->businessUnitName }}</td>
-                        <td>{{ $bu->address }}</td>
-                        <td>{{ $bu->phoneNumber }}</td>
-                        <td>{{ $bu->email }}</td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success">Active</span></td>
-                        <td class="text-center">
-                            <div class="d-inline-flex">
-                                <div class="dropdown">
-                                    <a href="#" class="text-body" data-bs-toggle="dropdown">
-                                        <i class="ph-list"></i>
-                                    </a>
+                @if (isset($businessUnits['data']) && is_array($businessUnits['data']) && count($businessUnits['data']) > 0)
+                    @foreach ($businessUnits['data'] as $bu)
+                        <tr>
+                            <td>{{ $bu['businessUnitCode'] }}</td>
+                            <td>{{ $bu['businessUnitName'] }}</td>
+                            <td>{{ $bu['address'] }}</td>
+                            <td>{{ $bu['phoneNumber'] }}</td>
+                            <td>{{ $bu['email'] }}</td>
+                            <td class="text-center">
+                                <div class="d-inline-flex">
+                                    <div class="dropdown">
+                                        <a href="#" class="text-body" data-bs-toggle="dropdown">
+                                            <i class="ph-list"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            {{-- <a href="#" class="dropdown-item text-info">
+                                                <i class="ph-list me-2"></i>
+                                                Detail
+                                            </a> --}}
+                                            <a href="#" class="dropdown-item text-info" data-bs-toggle="modal"
+                                                data-bs-target="#modal_large_{{ $bu['businessUnitId'] }}">
+                                                <i class="ph-list me-2"></i>
+                                                Detail
+                                            </a>
+                                            <a href="#" class="dropdown-item text-secondary">
+                                                <i class="ph-pencil me-2"></i>
+                                                Edit
+                                            </a>
+                                            <a href="#" class="dropdown-item text-danger"
+                                                onclick="confirmDeleteBusinessUnit({{ $bu['businessUnitId'] }})">
+                                                <i class="ph-trash me-2"></i>
+                                                Hapus
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                @endif
+            </tbody>
+        </table>
 
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="#" class="dropdown-item text-info">
-                                            <i class="ph-list me-2"></i>
-                                            Detail
-                                        </a>
-                                        <a href="#" class="dropdown-item text-secondary">
-                                            <i class="ph-pencil me-2"></i>
-                                            Edit
-                                        </a>
-                                        <a href="#" class="dropdown-item text-danger">
-                                            <i class="ph-trash me-2"></i>
-                                            Hapus
-                                        </a>
+        {{-- Detail Modal --}}
+        @if (isset($businessUnits['data']) && is_array($businessUnits['data']) && count($businessUnits['data']) > 0)
+            @foreach ($businessUnits['data'] as $bu)
+                <div id="modal_large_{{ $bu['businessUnitId'] }}" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Detail Unit Bisnis</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <div class="row mb-2">
+                                        <label for="detail_corporate_name"
+                                            class="col-lg-4 col-form-label">Perusahaan/Institusi:</label>
+                                        <div class="col-lg-7">
+                                            <label id="detail_corporate_name"
+                                                class="col-form-label">{{ $bu['corporateId']}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="detail_businessUnit_name" class="col-lg-4 col-form-label">Kode Unit
+                                            Bisnis:</label>
+                                        <div class="col-lg-7">
+                                            <label id="detail_businessUnit_name"
+                                                class="col-form-label">{{ $bu['businessUnitName'] }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="detail_businessUnit_address" class="col-lg-4 col-form-label">Alamat</label>
+                                        <div class="col-lg-7">
+                                            <label id="detail_businessUnit_address"
+                                                class="col-form-label">{{ $bu['address'] }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="detail_businessUnit_email"
+                                            class="col-lg-4 col-form-label">Keterangan:</label>
+                                        <div class="col-lg-7">
+                                            <label id="detail_businessUnit_email"
+                                                class="col-form-label">{{ $bu['email'] }}</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+        @endif
     </div>
+    @if (isset($businessUnits['data']) && is_array($businessUnits['data']) && count($businessUnits['data']) > 0)
+        @foreach ($businessUnits['data'] as $bu)
+            <form id="delete-form-{{ $bu['businessUnitId'] }}"
+                action="{{ route('businessUnit.delete', $bu['businessUnitId']) }}" method="POST" style="display: none;">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endforeach
+    @else
+    @endif
 @endsection

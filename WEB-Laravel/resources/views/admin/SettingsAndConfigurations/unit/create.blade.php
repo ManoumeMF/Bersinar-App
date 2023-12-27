@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-lg-9 offset-lg-1">
                     <form action="#">
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <label class="col-lg-3 col-form-label">Unit Bisnis:</label>
                             <div class="col-lg-8">
                                 <select class="form-select" aria-label="Default select example">
@@ -25,7 +25,7 @@
                                 <a class="btn btn-primary" href="{{route('businessUnit.create')}}"><i class="ph-plus-circle"></i><span
                                     class="d-none d-lg-inline-block"></span></a>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row mb-3">
                             <label class="col-lg-3 col-form-label">Nama Departemen:</label>
                             <div class="col-lg-8">
